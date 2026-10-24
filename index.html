@@ -1,0 +1,667 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dinamika Dominansi · LKM Keanekaragaman Hayati</title>
+<meta name="description" content="LKM Keanekaragaman Hayati: prediksi dominansi tumbuhan pada tiga skenario kasus.">
+<meta name="color-scheme" content="light">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#17301f; --muted:#456650;
+  --cream:#fffbe3; --cream-2:#f3e9b0; --edge:#d9ca7a;
+  --leaf:#178a3c; --leaf-dark:#0f6428; --leaf-soft:#d9f0b6;
+  --bad:#c62828; --bad-soft:#fde4e1; --ok:#1b7d3a; --ok-soft:#dff3df;
+  --display:"Fredoka","Trebuchet MS",system-ui,sans-serif;
+  --body:"Nunito",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+}
+*{box-sizing:border-box}
+html{background:#8cca62;-webkit-text-size-adjust:100%}
+body{margin:0;min-height:100vh;font:400 1rem/1.55 var(--body);color:var(--ink);position:relative}
+body::before{content:"";position:fixed;inset:0;z-index:-2;background:linear-gradient(180deg,#e6f6c3 0,#b8e085 40%,#6fbf55 100%)}
+.foliage{position:fixed;inset:0;z-index:-1;pointer-events:none}
+.foliage svg{width:100%;height:100%;display:block}
+.wrap{max-width:1040px;margin:0 auto;padding:0 16px}
+h1,h2,h3{font-family:var(--display);margin:0;line-height:1.15}
+a{color:inherit}
+:focus-visible{outline:3px solid #1b4fd8;outline-offset:2px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+/* top bar (halaman kasus) */
+.bar{display:flex;flex-wrap:wrap;align-items:center;gap:10px 16px;padding-top:14px;padding-bottom:6px}
+.back{font-weight:800;text-decoration:none;background:var(--cream);border:2px solid var(--cream-2);border-radius:999px;padding:5px 14px}
+.back:hover{background:#fff}
+.kname{font:600 1rem var(--display);background:var(--cream);border-radius:999px;padding:5px 14px;border:2px solid var(--cream-2)}
+.steps{display:flex;gap:8px;list-style:none;margin:0 0 0 auto;padding:0;flex-wrap:wrap}
+.steps li{font-weight:800;font-size:.9rem;border-radius:999px;border:2px solid var(--cream-2);background:var(--cream)}
+.steps a,.steps li.lock{display:flex;align-items:center;gap:6px;padding:4px 12px 4px 5px;text-decoration:none}
+.steps li.lock{opacity:.55}
+.steps .n{display:grid;place-items:center;width:22px;height:22px;border-radius:50%;background:var(--cream-2);font-size:.8rem}
+.steps li.cur{background:var(--leaf);border-color:var(--leaf-dark);color:#fff}
+.steps li.cur .n{background:#fff;color:var(--leaf-dark)}
+
+/* panel */
+main{padding:10px 0 36px}
+.panel{background:var(--cream);border:3px solid var(--cream-2);border-radius:24px;padding:clamp(16px,3vw,28px);box-shadow:0 8px 0 rgba(23,70,35,.18),0 22px 34px -14px rgba(23,70,35,.4)}
+.panel+.panel{margin-top:18px}
+.muted{color:var(--muted)}
+
+/* beranda */
+.hero{text-align:center;margin:26px auto 22px;max-width:760px;padding-top:26px;padding-bottom:22px}
+.hero h1{font-size:clamp(2.3rem,8vw,3.9rem);font-weight:700;color:#174a2a;
+  text-shadow:-3px -3px 0 var(--cream),3px -3px 0 var(--cream),-3px 3px 0 var(--cream),3px 3px 0 var(--cream),0 6px 0 var(--edge);margin-bottom:12px}
+.hero p{margin:0;font-weight:700;font-size:1.05rem}
+.kgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.kcard{position:relative;display:flex;flex-direction:column;gap:2px;text-decoration:none;background:var(--cream);border:3px solid var(--cream-2);border-radius:22px;padding:12px 12px 14px;text-align:center;box-shadow:0 7px 0 rgba(23,70,35,.2);transition:transform .15s ease}
+.kcard:hover{transform:translateY(-4px)}
+.thumb{position:relative;display:block;aspect-ratio:300/188;border-radius:14px;overflow:hidden;margin-bottom:8px;background:#cfe9b0}
+.thumb svg,.thumb img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
+.klabel{font:600 1.45rem var(--display)}
+.ksub{font-weight:700;color:var(--muted);font-size:.92rem}
+.done{position:absolute;top:20px;right:20px;background:var(--leaf);color:#fff;font-weight:800;font-size:.8rem;border-radius:999px;padding:3px 10px}
+.pill-foot{text-align:center;margin-top:26px}
+.pill-foot span{display:inline-block;background:var(--cream);border-radius:999px;padding:4px 14px;font-weight:700;font-size:.85rem;border:2px solid var(--cream-2)}
+
+/* page 2 */
+.latar h2{font-size:1.25rem;margin-bottom:6px}
+.latar p{margin:0;font-size:.95rem}
+.latar{background:#fff;border:3px solid var(--cream-2);border-radius:16px;padding:12px 16px;margin-bottom:18px}
+.board{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+.th{text-align:center;font-size:1.15rem;margin-bottom:8px}
+.box{display:block;width:100%;height:auto;aspect-ratio:3/2;background:#fff;border:3px solid var(--edge);border-radius:14px}
+.lg-title{font:600 .95rem var(--display);margin:14px 0 6px;text-align:center;background:var(--leaf-soft);border-radius:10px;padding:3px 8px}
+.arow{display:flex;align-items:center;gap:10px;min-height:54px}
+.arow .rate{font-weight:800;line-height:1.25}
+.arow input{width:100%;max-width:150px;margin:0 auto;height:44px;border:3px solid var(--edge);border-radius:12px;background:#fff;font:800 1.2rem var(--body);text-align:center;color:var(--ink)}
+.arow input.ok{border-color:var(--ok);background:var(--ok-soft)}
+.arow input.bad{border-color:var(--bad);background:var(--bad-soft);color:var(--bad)}
+.arow .mini{display:none}
+.foot{display:flex;flex-wrap:wrap;align-items:center;gap:14px 20px;margin-top:20px}
+.foot .note{flex:1 1 320px;margin:0;font-size:.95rem;font-weight:600}
+.foot-actions{display:flex;align-items:center;gap:14px;margin-left:auto}
+.status{min-height:1.6em;margin:12px 0 0;font-weight:800}
+.btn{font:600 1.05rem var(--display);background:var(--leaf);color:#fff;border:0;border-radius:999px;padding:11px 28px;box-shadow:0 4px 0 var(--leaf-dark);cursor:pointer;text-decoration:none;display:inline-block}
+.btn:active{transform:translateY(3px);box-shadow:0 1px 0 var(--leaf-dark)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn.alt{background:#fff;color:var(--leaf-dark);border:2px solid var(--leaf);box-shadow:0 4px 0 #b9d8a2;padding:9px 22px}
+.next{display:inline-grid;flex:none;place-items:center;width:54px;height:54px;border-radius:50%;background:var(--leaf);color:#fff;box-shadow:0 4px 0 var(--leaf-dark);text-decoration:none;animation:pop .45s ease}
+.next:hover{background:#1ba046}
+.next svg{width:28px;height:28px}
+@keyframes pop{0%{transform:scale(.4)}70%{transform:scale(1.12)}100%{transform:scale(1)}}
+
+/* page 3 */
+.match{display:grid;grid-template-columns:1fr auto;gap:18px;align-items:start;margin-top:14px}
+.mtable{display:grid;gap:10px;min-width:0}
+.mhead,.mrow{display:grid;grid-template-columns:.8fr 1.3fr 1.3fr;gap:10px}
+.mhead>div{background:var(--leaf-soft);border-radius:12px;padding:7px 10px;font:600 .95rem var(--display);text-align:center}
+.mcell{min-width:0}
+.mcell.fixed{display:flex;align-items:center;gap:10px;background:#fff;border:3px solid var(--edge);border-radius:14px;padding:10px 12px;font-weight:800;line-height:1.25}
+.lab-narrow{display:none}
+.dcard{display:flex;gap:6px;align-items:flex-start;height:100%;background:#fff;border:3px solid var(--edge);border-radius:14px;padding:8px 10px 8px 4px;position:relative}
+.dcard.ok{border-color:var(--ok);background:var(--ok-soft)}
+.dcard.bad{border-color:var(--bad);background:var(--bad-soft)}
+.dcard .body{flex:1;min-width:0;padding-right:18px}
+.dcard .cd{display:block;font-size:.88rem;line-height:1.4;margin-top:2px}
+.dcard .latin{font-size:.85rem}
+.dcard .mkt{position:absolute;top:6px;right:9px;font-weight:800}
+.dcard.ok .mkt{color:var(--ok)} .dcard.bad .mkt{color:var(--bad)}
+.grip{flex:none;width:30px;align-self:stretch;min-height:40px;background:none;border:0;border-radius:8px;cursor:grab;touch-action:none;color:var(--muted);display:grid;place-items:center;padding:0}
+.grip:hover:not(:disabled){background:var(--cream-2)}
+.grip:disabled{cursor:default;opacity:.35}
+.grip svg{width:16px;height:22px}
+.dcard.lifted{opacity:.35}
+.dcard.ghost{position:fixed;z-index:60;margin:0;height:auto;pointer-events:none;border-color:var(--leaf);box-shadow:0 14px 26px rgba(0,0,0,.3);transform:rotate(1.2deg)}
+.mcell.target .dcard{outline:3px dashed var(--leaf);outline-offset:3px}
+.hearts{display:flex;flex-direction:column;align-items:center;gap:6px;background:#fff;border:3px solid var(--edge);border-radius:18px;padding:10px 10px 12px}
+.hearts .hl{font:600 .85rem var(--display);color:var(--muted)}
+.heart{width:36px;height:36px;display:block}
+.heart.on{fill:#e53935}
+.heart.off{fill:#fff;stroke:#b5b5b5;stroke-width:1.6}
+.heart.pop{animation:shake .5s ease}
+@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-5px) rotate(-8deg)}60%{transform:translateX(5px) rotate(8deg)}}
+.over{background:var(--bad-soft);border:3px solid var(--bad);border-radius:16px;padding:14px;margin:14px 0 0;text-align:center}
+.over p{margin:0 0 10px;font-weight:800}
+
+/* page 4 */
+.stage{max-width:620px;margin:16px auto 0;text-align:center}
+.stage .box.big{box-shadow:0 6px 0 rgba(23,70,35,.15)}
+.tl{font:600 1.3rem var(--display);margin:12px 0 4px}
+.ctrl{display:flex;align-items:center;gap:12px;margin:6px 0 4px}
+.ctrl input[type=range]{flex:1;accent-color:var(--leaf);min-width:0}
+.live{list-style:none;margin:12px 0 0;padding:0;display:flex;flex-wrap:wrap;gap:8px 18px;justify-content:center}
+.live li{display:flex;align-items:center;gap:6px;font-weight:800}
+.verdict{margin:18px auto 0;max-width:620px;background:#fff;border:3px solid var(--edge);border-radius:14px;padding:12px 16px;font-weight:700}
+
+@media (max-width:760px){
+  .kgrid{grid-template-columns:1fr}
+  .board{grid-template-columns:1fr;gap:26px}
+  .arow .mini{display:inline-flex}
+  .arow input{margin:0;max-width:none}
+  .match{grid-template-columns:1fr}
+  .hearts{flex-direction:row;justify-content:center;order:-1}
+  .mhead{display:none}
+  .mrow{grid-template-columns:1fr;background:rgba(255,255,255,.55);border-radius:18px;padding:10px}
+  .lab-narrow{display:block;font:600 .8rem var(--display);color:var(--muted);margin-bottom:2px}
+  .dcard{height:auto}
+  .mcell.drag::before{content:attr(data-lab);display:block;font:600 .8rem var(--display);color:var(--muted);margin:2px 0 2px 4px}
+  .steps{margin-left:0}
+}
+@media (prefers-reduced-motion:reduce){
+  .next,.heart.pop{animation:none}
+  .kcard{transition:none}
+}
+</style>
+</head>
+<body>
+<div class="foliage" aria-hidden="true">
+<svg viewBox="0 0 1440 900" preserveAspectRatio="xMidYMax slice">
+  <defs><path id="lf" d="M0 0C30-70 130-80 190 0C130 80 30 70 0 0z"/></defs>
+  <g fill="#2e8f43"><use href="#lf" transform="translate(-30 880) rotate(-62) scale(2.6)"/><use href="#lf" transform="translate(40 930) rotate(-30) scale(2.2)"/></g>
+  <g fill="#1f7a37"><use href="#lf" transform="translate(-10 760) rotate(-84) scale(1.8)"/><use href="#lf" transform="translate(120 940) rotate(-12) scale(1.7)"/></g>
+  <g fill="#3da552"><use href="#lf" transform="translate(1470 890) rotate(-118) scale(2.6)"/><use href="#lf" transform="translate(1400 940) rotate(-150) scale(2.2)"/></g>
+  <g fill="#23803b"><use href="#lf" transform="translate(1450 740) rotate(-96) scale(1.8)"/><use href="#lf" transform="translate(1290 950) rotate(-168) scale(1.7)"/></g>
+  <g fill="#52b85e" opacity=".85"><use href="#lf" transform="translate(-20 40) rotate(40) scale(2)"/><use href="#lf" transform="translate(1460 30) rotate(140) scale(2)"/></g>
+  <g fill="#7cc96b" opacity=".7"><use href="#lf" transform="translate(30 -10) rotate(75) scale(1.4)"/><use href="#lf" transform="translate(1410 -10) rotate(105) scale(1.4)"/></g>
+</svg>
+</div>
+<div id="topnav"></div>
+<main class="wrap" id="view" aria-live="off"></main>
+<noscript><div class="wrap"><div class="panel">Halaman ini membutuhkan JavaScript untuk berjalan.</div></div></noscript>
+
+<script>
+(function(){
+'use strict';
+
+var GURU=/[?&]guru\b/.test(location.search); // ?guru membuka semua halaman (untuk pratinjau guru)
+
+/* ---------- bentuk ikon (dipakai di SVG dan canvas) ---------- */
+var SHAPES={
+  circle:'M12 2a10 10 0 1 0 0 20a10 10 0 1 0 0-20z',
+  triangle:'M12 2.5L22.5 21H1.5z',
+  square:'M3 3h18v18H3z',
+  diamond:'M12 1L21 12L12 23L3 12z',
+  plus:'M9 2h6v7h7v6h-7v7H9v-7H2V9h7z',
+  cross:'M4.5 2.5L12 10L19.5 2.5L21.5 4.5L14 12L21.5 19.5L19.5 21.5L12 14L4.5 21.5L2.5 19.5L10 12L2.5 4.5z',
+  star:'M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z'
+};
+var PATHS={};
+if(typeof Path2D!=='undefined'){ Object.keys(SHAPES).forEach(function(k){ PATHS[k]=new Path2D(SHAPES[k]); }); }
+
+/* ---------- DATA: ubah isi LKM di sini ---------- */
+var SCENARIOS=[
+{
+  id:1, name:'Kebun di Tanah Berkapur', factor:'Zat Besi (Fe)', place:'kebun', span:'bulan Januari hingga Mei 2026',
+  respLabel:'Respons terhadap Fe',
+  latar:'Sebuah kebun berada di atas tanah berkapur ber-pH tinggi. Pada pH tinggi, Fe yang sebenarnya ada di tanah menjadi <strong>sulit diserap</strong> akar. Padahal Fe dibutuhkan untuk pembentukan klorofil. Kekurangan Fe menyebabkan <strong>klorosis</strong>, yaitu daun muda menguning karena klorofil kurang terbentuk, sehingga fotosintesis dan pertumbuhan menurun. Terdapat beberapa tumbuhan yang diberi kode sebagai berikut.',
+  times:['1 Januari 2026','1 Maret 2026','1 Mei 2026'],
+  dates:[[2026,0,1],[2026,2,1],[2026,4,1]],
+  initial:[4,1,15], key:[[16,16,30],[64,256,60]],
+  plants:[
+    {key:'bayam',name:'Bayam',latin:'<i>Spinacia oleracea</i>',shape:'circle',color:'#f2b705',colorName:'kuning',rate:'2× tiap 1 bulan',
+     char:'Sayuran daun hijau semusim dengan kandungan Fe tinggi',
+     resp:'Kekurangan Fe pada tanah berkapur menurunkan hasil dan kualitas; daun muda menguning karena klorofil kurang terbentuk'},
+    {key:'teki',name:'Rumput teki',latin:'<i>Cyperus rotundus</i>',shape:'triangle',color:'#d64533',colorName:'merah',rate:'2× tiap 2 minggu',
+     char:'Gulma menahun setinggi sekitar 7 sampai 40 cm, berkembang biak lewat rimpang dan umbi, dijuluki gulma terburuk di daerah hangat',
+     resp:'Regenerasi cepat lewat umbi; tidak ada sumber yang menyebut efisiensi serapan Fe-nya'},
+    {key:'kacang',name:'Kacang hijau',latin:'<i>Vigna radiata</i>',shape:'square',color:'#2e9e5b',colorName:'hijau',rate:'2× tiap 2 bulan',
+     char:'Tanaman legum semusim',
+     resp:'Daun muda dapat menguning bila Fe tidak tersedia, sesuai prinsip klorosis Fe pada tanah berkapur'}
+  ]
+},
+{
+  id:2, name:'Waduk Tercemar Limbah Pertanian', factor:'Nitrogen (N)', place:'waduk', span:'bulan ke-0 hingga bulan ke-4',
+  respLabel:'Respons terhadap N',
+  latar:'Air sebuah waduk menerima limpasan pupuk dan limbah pertanian yang kaya <strong>nitrogen</strong> (nitrat dan amonium). Nitrogen dibutuhkan untuk pembentukan protein dan klorofil sehingga memacu pertumbuhan daun. Kelebihan N dan P di perairan dapat memicu pertumbuhan tumbuhan air secara tidak terkendali.',
+  times:['Bulan 0','Bulan 2','Bulan 4'],
+  initial:[1,2,5], key:[[16,8,10],[256,32,20]],
+  plants:[
+    {key:'eceng',name:'Eceng gondok',latin:'<i>Eichhornia crassipes</i>',shape:'circle',color:'#f28a1e',colorName:'oren',rate:'2× tiap 1 minggu (kondisi optimal)',
+     char:'Tumbuhan air mengapung, daun rapat menutup permukaan; waktu penggandaan di alam dilaporkan sekitar 5 sampai 11 hari',
+     resp:'N dan P adalah faktor pembatas pertumbuhan terpenting; pertumbuhannya mengikuti pola logistik'},
+    {key:'kayuapu',name:'Kayu apu',latin:'<i>Pistia stratiotes</i>',shape:'diamond',color:'#2f6fcf',colorName:'biru',rate:'2× tiap 1 bulan',
+     char:'Tumbuhan air mengapung berbentuk roset, dimanfaatkan sebagai tempat perlindungan burayak/ikan kecil. Di sisi lain, jika populasinya padat akan mengurangi kadar oksigen terlarut dan cahaya matahari di dalam air.',
+     resp:'Pertumbuhannya dibatasi oleh kadar N dan P di air'},
+    {key:'hydrilla',name:'Hydrilla',latin:'<i>Hydrilla verticillata</i>',shape:'plus',color:'#7e4fd0',colorName:'ungu',rate:'2× tiap 2 bulan (asumsi)',
+     char:'Tumbuhan terendam berakar di dasar; tumbuh sampai sekitar 2,5 cm per hari menuju permukaan lalu bercabang dan menaungi tumbuhan lain; punya titik kompensasi cahaya terendah dan butuh irradiansi paling kecil.',
+     resp:'Mampu tumbuh pada cahaya sangat rendah; pada skenario ini cahayanya berkurang oleh tutupan tumbuhan apung (asumsi skenario)'}
+  ]
+},
+{
+  id:3, name:'Lereng Gunung Berapi', factor:'Fosfor (P)', place:'lereng gunung berapi', span:'bulan ke-0 hingga bulan ke-4',
+  respLabel:'Respons terhadap P rendah',
+  latar:'Sebuah lereng gunung berapi memiliki tanah muda yang <strong>kekurangan fosfor tersedia</strong>. Fosfor dibutuhkan untuk pembentukan ATP, perkembangan akar, dan pembungaan.',
+  times:['Bulan 0','Bulan 2','Bulan 4'],
+  initial:[2,2,1], key:[[8,4,2],[32,8,4]],
+  plants:[
+    {key:'alang',name:'Alang-alang',latin:'<i>Imperata cylindrica</i>',shape:'star',color:'#e0488c',colorName:'pink',rate:'2× tiap 1 bulan',
+     char:'Rumput menahun berimpang luas, tahan kering dan api',
+     resp:'Tetap bisa tumbuh dengan baik di tanah yang miskin hara karena akar rimpangnya sangat efisien menyerap nutrisi'},
+    {key:'kaliandra',name:'Kaliandra',latin:'<i>Calliandra calothyrsus</i>',shape:'diamond',color:'#1db5ac',colorName:'tosca',rate:'2× tiap 2 bulan',
+     char:'Pohon kecil atau semak berkayu yang cepat tumbuh dan mampu mengikat nitrogen bebas dari udara.',
+     resp:'Mampu bertahan hidup di tanah tandus karena bekerja sama dengan jamur akar (mikoriza) untuk menyerap fosfor'},
+    {key:'jagung',name:'Jagung manis',latin:'<i>Zea mays</i> var. <i>saccharata</i>',shape:'cross',color:'#2f6fcf',colorName:'biru',rate:'2× tiap 2 bulan',
+     char:'Tanaman pangan semusim',
+     resp:'Apabila P (fosfor) rendah dapat menghambat pembentukan akar lateral dan pertumbuhan tanaman'}
+  ]
+}];
+
+/* ---------- ilustrasi kartu kasus (ganti dengan foto: images/kasus1.jpg dst.) ---------- */
+var ART={
+1:'<svg viewBox="0 0 300 188" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><defs><linearGradient id="g1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#bfe6ff"/><stop offset="1" stop-color="#fff3c4"/></linearGradient></defs><rect width="300" height="188" fill="url(#g1)"/><circle cx="238" cy="42" r="20" fill="#ffd54a"/><path d="M0 120C50 90 110 100 160 112S260 100 300 90V188H0z" fill="#a8d46f"/><path d="M0 150C70 125 150 140 220 132S280 125 300 128V188H0z" fill="#6fb34f"/><g fill="#f3efe0"><ellipse cx="62" cy="162" rx="17" ry="8"/><ellipse cx="214" cy="170" rx="21" ry="9"/></g><g fill="#fff"><circle cx="40" cy="140" r="3.5"/><circle cx="96" cy="150" r="3.5"/><circle cx="150" cy="142" r="3.5"/><circle cx="258" cy="148" r="3.5"/></g><g fill="#f2b705"><circle cx="40" cy="140" r="1.5"/><circle cx="96" cy="150" r="1.5"/><circle cx="150" cy="142" r="1.5"/><circle cx="258" cy="148" r="1.5"/></g></svg>',
+2:'<svg viewBox="0 0 300 188" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><defs><linearGradient id="g2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#cfeaff"/><stop offset="1" stop-color="#eef8ff"/></linearGradient></defs><rect width="300" height="188" fill="url(#g2)"/><path d="M0 92L50 62L100 88L160 54L230 90L300 66V110H0z" fill="#9db9a0"/><rect y="104" width="300" height="84" fill="#5aa9d6"/><g fill="none" stroke="#fff" stroke-width="2" opacity=".6"><path d="M20 126q12-6 24 0t24 0"/><path d="M190 150q12-6 24 0t24 0"/></g><g fill="#3d9b4a"><ellipse cx="90" cy="142" rx="34" ry="12"/><ellipse cx="116" cy="136" rx="22" ry="9"/><ellipse cx="210" cy="124" rx="28" ry="10"/><ellipse cx="236" cy="168" rx="30" ry="10"/></g><g fill="#8e5bd6"><circle cx="82" cy="134" r="4"/><circle cx="214" cy="116" r="4"/></g></svg>',
+3:'<svg viewBox="0 0 300 188" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><defs><linearGradient id="g3" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffd9a8"/><stop offset="1" stop-color="#fff1d0"/></linearGradient></defs><rect width="300" height="188" fill="url(#g3)"/><g fill="#b9aaa0" opacity=".85"><circle cx="150" cy="30" r="16"/><circle cx="170" cy="18" r="13"/><circle cx="132" cy="18" r="11"/></g><path d="M40 188L125 56H175L260 188z" fill="#7a5a4a"/><path d="M125 56H175L182 66L168 60L150 70L132 60L118 66z" fill="#d64533"/><path d="M0 188V150C60 140 110 128 150 128S250 140 300 150V188z" fill="#8bbf5a"/><g fill="#4f9a45"><ellipse cx="60" cy="160" rx="18" ry="8"/><ellipse cx="238" cy="166" rx="22" ry="9"/><ellipse cx="150" cy="176" rx="16" ry="6"/></g></svg>'
+};
+
+var ARROW='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>';
+var GRIP='<svg viewBox="0 0 10 16" aria-hidden="true" fill="currentColor"><circle cx="2.5" cy="2.5" r="1.7"/><circle cx="7.5" cy="2.5" r="1.7"/><circle cx="2.5" cy="8" r="1.7"/><circle cx="7.5" cy="8" r="1.7"/><circle cx="2.5" cy="13.5" r="1.7"/><circle cx="7.5" cy="13.5" r="1.7"/></svg>';
+var HEART='M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z';
+
+/* ---------- util ---------- */
+function shapeSVG(pl,size){
+  size=size||28;
+  return '<svg class="shp" viewBox="0 0 24 24" width="'+size+'" height="'+size+'" role="img" aria-label="'+pl.name+' ('+pl.colorName+')"><path d="'+SHAPES[pl.shape]+'" fill="'+pl.color+'" stroke="rgba(0,0,0,.28)" stroke-width="1" stroke-linejoin="round"/></svg>';
+}
+function shuffle(a){ var b=a.slice(); for(var i=b.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=b[i]; b[i]=b[j]; b[j]=t; } return b; }
+function shuffleDiff(a){ var b,n=0; do{ b=shuffle(a); n++; }while(n<60 && !b.every(function(x,i){ return x!==a[i]; })); return b; }
+function mulberry32(s){ return function(){ s|=0; s=s+0x6D2B79F5|0; var t=Math.imul(s^s>>>15,1|s); t=t+Math.imul(t^t>>>7,61|t)^t; return ((t^t>>>14)>>>0)/4294967296; }; }
+
+/* ---------- state per kasus ---------- */
+var state={};
+function S(id){
+  if(!state[id]){
+    var keys=SCENARIOS[id-1].plants.map(function(p){ return p.key; });
+    state[id]={unlock:2,pred:[['','',''],['','','']],mark:{},colOk:[false,false],msg2:'',
+      order:{p:shuffleDiff(keys),r:shuffleDiff(keys)},m3:{},msg3:'',hearts:5,hit:false,solved:false,finished:false};
+  }
+  return state[id];
+}
+function maxP(k){ return GURU?4:S(k).unlock; }
+
+/* ---------- routing ---------- */
+var view=document.getElementById('view');
+var topnav=document.getElementById('topnav');
+function route(){
+  var m=location.hash.match(/^#\/k([1-3])\/p([2-4])$/);
+  if(!m) return {home:true};
+  var k=+m[1], p=+m[2], mx=maxP(k);
+  if(p>mx){ p=mx; try{ history.replaceState(null,'','#/k'+k+'/p'+p); }catch(e){} }
+  return {k:k,p:p};
+}
+
+/* ---------- beranda ---------- */
+function home(){
+  var cards=SCENARIOS.map(function(sc){
+    return '<a class="kcard" href="#/k'+sc.id+'/p2"><span class="thumb">'+ART[sc.id]+
+      '<img src="images/kasus'+sc.id+'.jpg" alt="" loading="lazy" onerror="this.remove()"></span>'+
+      '<span class="klabel">Kasus '+sc.id+'</span><span class="ksub">'+sc.name+'</span>'+
+      (S(sc.id).finished?'<span class="done">✓ Selesai</span>':'')+'</a>';
+  }).join('');
+  return '<section class="panel hero"><h1>Dinamika Dominansi</h1><p>Silakan pilih salah satu skenario kasus di bawah ini untuk memulai investigasi!</p></section>'+
+    '<section class="kgrid" aria-label="Pilihan kasus">'+cards+'</section>'+
+    '<p class="pill-foot"><span>LKM Keanekaragaman Hayati · Prediksi Dominansi Tumbuhan</span></p>';
+}
+
+function navHTML(k,p){
+  var mx=maxP(k), names={2:'Pengamatan',3:'Pencocokan',4:'Simulasi'};
+  var items=[2,3,4].map(function(n,i){
+    var lab='<span class="n">'+(i+1)+'</span>'+names[n];
+    if(n>mx) return '<li class="lock" aria-disabled="true">'+lab+'</li>';
+    return '<li class="'+(n===p?'cur':'open')+'"><a href="#/k'+k+'/p'+n+'"'+(n===p?' aria-current="step"':'')+'>'+lab+'</a></li>';
+  }).join('');
+  return '<div class="wrap bar"><a class="back" href="#/">← Pilih kasus</a><span class="kname">Kasus '+k+': '+SCENARIOS[k-1].name+'</span><ol class="steps">'+items+'</ol></div>';
+}
+
+/* ---------- canvas kotak putih ---------- */
+var layouts={};
+function layoutFor(sc){
+  if(layouts[sc.id]) return layouts[sc.id];
+  var W=360,H=240, fin=sc.key[1], total=fin.reduce(function(a,b){ return a+b; },0);
+  var cols=Math.max(1,Math.ceil(Math.sqrt(total*W/H))), rows=Math.ceil(total/cols);
+  var cw=W/cols, ch=H/rows, cell=Math.min(cw,ch), rng=mulberry32(sc.id*7919);
+  var cells=[]; for(var r=0;r<rows;r++) for(var c=0;c<cols;c++) cells.push([c,r]);
+  cells=cells.map(function(x){ return [rng(),x]; }).sort(function(a,b){ return a[0]-b[0]; }).map(function(x){ return x[1]; });
+  var pos=[], idx=0;
+  sc.plants.forEach(function(pl,j){
+    var list=[];
+    for(var i=0;i<fin[j];i++){
+      var cc=cells[idx++];
+      list.push({x:(cc[0]+.5)*cw+(rng()-.5)*cw*.3, y:(cc[1]+.5)*ch+(rng()-.5)*ch*.3});
+    }
+    pos.push(list);
+  });
+  layouts[sc.id]={W:W,H:H,pos:pos,size:Math.min(28,cell*.66)};
+  return layouts[sc.id];
+}
+function drawBox(cv,sc,counts){
+  if(!cv||!cv.getContext||typeof Path2D==='undefined') return;
+  var ctx=cv.getContext('2d'); if(!ctx) return;
+  var L=layoutFor(sc), dpr=window.devicePixelRatio||1;
+  if(cv.width!==Math.round(L.W*dpr)){ cv.width=Math.round(L.W*dpr); cv.height=Math.round(L.H*dpr); }
+  ctx.setTransform(dpr,0,0,dpr,0,0); ctx.clearRect(0,0,L.W,L.H);
+  sc.plants.forEach(function(pl,j){
+    ctx.fillStyle=pl.color;
+    var n=Math.min(counts[j],L.pos[j].length);
+    for(var i=0;i<n;i++){
+      var p=L.pos[j][i];
+      ctx.save(); ctx.translate(p.x-L.size/2,p.y-L.size/2); ctx.scale(L.size/24,L.size/24); ctx.fill(PATHS[pl.shape]); ctx.restore();
+    }
+  });
+}
+function boxLabel(sc,label,counts){
+  var any=counts.some(function(n){ return n>0; });
+  return label+': '+(any?counts.map(function(n,j){ return n+' '+sc.plants[j].name; }).join(', '):'kotak masih kosong');
+}
+
+/* ---------- page 2: kotak pengamatan ---------- */
+function page2(sc){
+  var st=S(sc.id), P=sc.plants;
+  function col(c){
+    var body;
+    if(c===0){
+      body='<p class="lg-title">Laju Penggandaan</p>'+P.map(function(pl){
+        return '<div class="arow">'+shapeSVG(pl,30)+'<span class="rate">'+pl.rate+'</span></div>';
+      }).join('');
+    }else{
+      body='<p class="lg-title">Perkiraan jumlah</p>'+P.map(function(pl,j){
+        var mk=st.mark[(c-1)+'-'+j]||'';
+        return '<div class="arow"><span class="mini">'+shapeSVG(pl,24)+'</span><input type="number" inputmode="numeric" min="0" max="99999" step="1" placeholder="0"'+
+          ' data-c="'+(c-1)+'" data-j="'+j+'" value="'+st.pred[c-1][j]+'" class="'+mk+'"'+(mk==='bad'?' aria-invalid="true"':'')+
+          ' aria-label="Jumlah '+pl.name+' pada '+sc.times[c]+'"></div>';
+      }).join('');
+    }
+    return '<div class="tcol"><h3 class="th">'+sc.times[c]+'</h3><canvas class="box" id="box'+c+'" width="360" height="240" role="img"></canvas>'+body+'</div>';
+  }
+  var arrow=maxP(sc.id)>=3?'<a class="next" href="#/k'+sc.id+'/p3" aria-label="Lanjut ke pencocokan tabel">'+ARROW+'</a>':'';
+  return '<section class="panel">'+
+    '<div class="latar"><h2>Kasus '+sc.id+': '+sc.name+'</h2><p>'+sc.latar+'</p></div>'+
+    '<div class="board">'+col(0)+col(1)+col(2)+'</div>'+
+    '<p class="status" id="status2" role="status" aria-live="polite">'+st.msg2+'</p>'+
+    '<div class="foot"><p class="note">Berdasarkan laju penggandaan tumbuhan pada tabel, hitung dan masukkan perkiraan jumlah tumbuhan pada '+sc.times[1]+' dan '+sc.times[2]+' ke dalam kotak yang tersedia, lalu klik Periksa jawaban.</p>'+
+    '<div class="foot-actions"><button type="button" class="btn" data-act="check2" data-sig="check2">Periksa jawaban</button>'+arrow+'</div></div>'+
+    '</section>';
+}
+function counts2(sc,st,c){ return c===0?sc.initial:(st.colOk[c-1]?sc.key[c-1]:[0,0,0]); }
+function paint2(sc){
+  var st=S(sc.id);
+  for(var c=0;c<3;c++){
+    var cv=document.getElementById('box'+c); if(!cv) continue;
+    var cn=counts2(sc,st,c);
+    cv.setAttribute('aria-label',boxLabel(sc,sc.times[c],cn));
+    drawBox(cv,sc,cn);
+  }
+}
+function check2(sc){
+  var st=S(sc.id), res=[];
+  for(var c=0;c<2;c++){
+    var ok=true;
+    for(var j=0;j<3;j++){
+      var v=st.pred[c][j], good=v!==''&&Number(v)===sc.key[c][j];
+      st.mark[c+'-'+j]=good?'ok':'bad'; if(!good) ok=false;
+    }
+    st.colOk[c]=ok; res.push(ok);
+  }
+  if(res[0]&&res[1]){
+    st.unlock=Math.max(st.unlock,3);
+    st.msg2='Semua jumlah tepat! Ikon tumbuhan muncul di kotak putih. Klik tanda panah untuk lanjut.';
+  }else{
+    var bad=[0,1].filter(function(c){ return !res[c]; }).map(function(c){ return sc.times[c+1]; });
+    st.msg2='Masih ada jawaban yang salah pada '+bad.join(' dan ')+' (angka merah). Hitung ulang: jumlah menjadi 2× lipat setiap satu kali waktu penggandaan.';
+  }
+}
+
+/* ---------- page 3: pencocokan tabel + nyawa ---------- */
+function page3(sc){
+  var st=S(sc.id), P=sc.plants;
+  var get=function(k){ return P.filter(function(p){ return p.key===k; })[0]; };
+  var locked=st.solved||st.hearts===0;
+  function cell(colKey,i){
+    var pl=get(st.order[colKey][i]), m=st.m3[colKey+i]||'';
+    var lab=colKey==='p'?'Tumbuhan dan Karakteristik':sc.respLabel;
+    var inner=colKey==='p'
+      ? '<b>'+pl.name+'</b> <span class="latin">(<span>'+pl.latin+'</span>)</span><span class="cd">'+pl.char+'</span>'
+      : '<span class="cd">'+pl.resp+'</span>';
+    return '<div class="mcell drag" data-col="'+colKey+'" data-i="'+i+'" data-lab="'+lab+'">'+
+      '<div class="dcard '+m+'">'+
+      '<button type="button" class="grip" data-sig="grip:'+colKey+':'+i+'" data-col="'+colKey+'" data-i="'+i+'"'+(locked?' disabled':'')+
+      ' aria-label="Geser kartu baris '+(i+1)+', kolom '+lab+'. Tekan panah atas atau bawah untuk memindahkan.">'+GRIP+'</button>'+
+      '<div class="body">'+inner+'</div>'+
+      (m==='ok'?'<span class="mkt" aria-label="tepat">✓</span>':m==='bad'?'<span class="mkt" aria-label="belum tepat">✗</span>':'')+
+      '</div></div>';
+  }
+  var rows=P.map(function(pl,i){
+    return '<div class="mrow"><div class="mcell fixed"><div><span class="lab-narrow">Laju Penggandaan</span><div style="display:flex;align-items:center;gap:10px">'+shapeSVG(pl,30)+'<span>'+pl.rate+'</span></div></div></div>'+cell('p',i)+cell('r',i)+'</div>';
+  }).join('');
+  var hearts='';
+  for(var i=0;i<5;i++){
+    hearts+='<svg class="heart '+(i<st.hearts?'on':'off')+((st.hit&&i===st.hearts)?' pop':'')+'" viewBox="0 0 24 24" aria-hidden="true"><path d="'+HEART+'"/></svg>';
+  }
+  st.hit=false;
+  var over=(st.hearts===0&&!st.solved)
+    ? '<div class="over" role="alert"><p>Nyawa habis! Tenang, kartunya diacak ulang dan nyawamu kembali penuh.</p><button type="button" class="btn" data-act="retry3" data-sig="retry3">Coba lagi</button></div>':'';
+  var arrow=maxP(sc.id)>=4?'<a class="next" href="#/k'+sc.id+'/p4" aria-label="Lanjut ke simulasi">'+ARROW+'</a>':'';
+  return '<section class="panel">'+
+    '<h2>Pencocokan tabel</h2>'+
+    '<p style="margin:8px 0 0;font-weight:700">Sesuaikan urutan baris pada kolom <b>Tumbuhan dan Karakteristik</b> serta <b>'+sc.respLabel+'</b> agar posisinya sesuai dengan pasangan <b>Laju Penggandaan</b> yang tepat!</p>'+
+    '<p class="muted" style="margin:4px 0 0;font-size:.9rem">Tekan dan geser ikon titik-titik di tiap kartu ke atas atau bawah. Dengan keyboard: fokus ke ikon itu, lalu tekan panah atas/bawah. Setiap pemeriksaan yang masih salah mengurangi satu nyawa.</p>'+
+    '<div class="match"><div class="mtable"><div class="mhead"><div>Laju Penggandaan</div><div>Tumbuhan dan Karakteristik</div><div>'+sc.respLabel+'</div></div>'+rows+'</div>'+
+    '<div class="hearts" role="img" aria-label="Nyawa tersisa '+st.hearts+' dari 5">'+hearts+'<span class="hl">Nyawa</span></div></div>'+
+    over+
+    '<p class="status" id="status3" role="status" aria-live="polite">'+st.msg3+'</p>'+
+    '<div class="foot"><div class="foot-actions" style="margin-left:0"><button type="button" class="btn" data-act="check3" data-sig="check3"'+(locked?' disabled':'')+'>Periksa jawaban</button></div>'+
+    '<div class="foot-actions">'+arrow+'</div></div>'+
+    '</section>';
+}
+function check3(sc){
+  var st=S(sc.id), P=sc.plants;
+  if(st.solved||st.hearts===0) return;
+  var wrong=0;
+  P.forEach(function(pl,i){
+    var po=st.order.p[i]===pl.key, ro=st.order.r[i]===pl.key;
+    st.m3['p'+i]=po?'ok':'bad'; st.m3['r'+i]=ro?'ok':'bad';
+    if(!po||!ro) wrong++;
+  });
+  if(wrong===0){
+    st.solved=true; st.unlock=Math.max(st.unlock,4);
+    st.msg3='Semua pasangan sudah tepat! Klik tanda panah untuk melihat simulasinya.';
+  }else{
+    st.hearts=Math.max(0,st.hearts-1); st.hit=true;
+    st.msg3=st.hearts>0
+      ? 'Masih ada kartu yang belum tepat (ditandai merah). Nyawa tersisa '+st.hearts+'. Geser kartunya lalu periksa lagi.'
+      : 'Nyawa habis.';
+  }
+}
+
+/* ---------- page 4: simulasi ---------- */
+var sim={raf:0,t:0,playing:false,loop:true,hold:0,last:0,sc:null};
+var DUR=12000;
+function countsAt(sc,t){
+  var seg=t<2?0:1, f=Math.min(1,(t-2*seg)/2);
+  return sc.plants.map(function(pl,j){
+    var v=[sc.initial[j],sc.key[0][j],sc.key[1][j]], a=v[seg], b=v[seg+1];
+    return Math.round(a*Math.pow(b/a,f));
+  });
+}
+function timeLabel(sc,t){
+  if(sc.dates){
+    var seg=t<2?0:1, f=Math.min(1,(t-2*seg)/2);
+    var a=new Date(sc.dates[seg][0],sc.dates[seg][1],sc.dates[seg][2]).getTime();
+    var b=new Date(sc.dates[seg+1][0],sc.dates[seg+1][1],sc.dates[seg+1][2]).getTime();
+    var d=new Date(a+(b-a)*f);
+    try{ return d.toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric'}); }catch(e){ return d.toDateString(); }
+  }
+  return 'Bulan '+Math.floor(t+1e-9);
+}
+function verdict(sc){
+  var P=sc.plants, fin=sc.key[1], ini=sc.initial;
+  var top=function(v){ var m=Math.max.apply(null,v); return v.map(function(x,i){ return x===m?i:-1; }).filter(function(i){ return i>=0; }); };
+  var tf=top(fin)[0], ti=top(ini), sum=fin.reduce(function(a,b){ return a+b; },0);
+  var s='Di akhir pengamatan, '+P[tf].name+' paling dominan: '+Math.round(fin[tf]/sum*100)+'% dari '+sum+' individu.';
+  if(ti.indexOf(tf)<0) s+=' Di awal, yang terbanyak adalah '+ti.map(function(i){ return P[i].name; }).join(' dan ')+', jadi dominansinya bergeser.';
+  else s+=' '+P[tf].name+' sudah termasuk yang terbanyak sejak awal.';
+  return s;
+}
+function page4(sc){
+  var legend=sc.plants.map(function(pl,j){ return '<li>'+shapeSVG(pl,22)+'<span>'+pl.name+': <span id="live'+j+'">0</span></span></li>'; }).join('');
+  return '<section class="panel">'+
+    '<h2>Simulasi dominansi</h2>'+
+    '<p style="margin:8px 0 0;font-weight:700">Berikut adalah simulasi visual perubahan dominansi vegetasi di '+sc.place+' dari '+sc.span+' berdasarkan hasil perhitungan dan analisis yang telah kamu lakukan!</p>'+
+    '<div class="stage"><canvas class="box big" id="sim" width="360" height="240" role="img"></canvas>'+
+    '<div class="tl" id="tl" aria-live="off"></div>'+
+    '<div class="ctrl"><button type="button" class="btn alt" id="simtoggle" data-act="simtoggle">Jeda</button>'+
+    '<input type="range" id="simrange" min="0" max="400" value="0" aria-label="Posisi waktu simulasi"></div>'+
+    '<ul class="live">'+legend+'</ul></div>'+
+    '<p class="verdict">'+verdict(sc)+'</p>'+
+    '<div class="foot"><div class="foot-actions" style="margin-left:0"><a class="btn" href="#/">Pilih kasus lain</a></div></div>'+
+    '</section>';
+}
+function drawSim(){
+  var sc=sim.sc; if(!sc) return;
+  var cn=countsAt(sc,sim.t), cv=document.getElementById('sim'); if(!cv) return;
+  drawBox(cv,sc,cn);
+  var lab=timeLabel(sc,sim.t);
+  document.getElementById('tl').textContent=lab;
+  cv.setAttribute('aria-label',boxLabel(sc,lab,cn));
+  cn.forEach(function(n,j){ var el=document.getElementById('live'+j); if(el) el.textContent=n; });
+  var rg=document.getElementById('simrange'); if(rg) rg.value=Math.round(sim.t*100);
+  var tg=document.getElementById('simtoggle'); if(tg) tg.textContent=sim.playing?'Jeda':(sim.t>=4?'Putar ulang':'Putar');
+}
+function frame(ts){
+  if(!sim.playing) return;
+  if(sim.hold){
+    if(ts>=sim.hold){ sim.hold=0; sim.t=0; }
+  }else{
+    sim.t+=(ts-sim.last)/DUR*4;
+    if(sim.t>=4){
+      sim.t=4;
+      if(sim.loop){ sim.hold=ts+1800; } else { sim.playing=false; }
+    }
+  }
+  sim.last=ts; drawSim();
+  if(sim.playing) sim.raf=requestAnimationFrame(frame);
+}
+function playSim(){
+  if(sim.t>=4) sim.t=0;
+  sim.playing=true; sim.hold=0; sim.last=performance.now();
+  cancelAnimationFrame(sim.raf); sim.raf=requestAnimationFrame(frame); drawSim();
+}
+function pauseSim(){ sim.playing=false; cancelAnimationFrame(sim.raf); drawSim(); }
+function startSim(sc){
+  var reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  sim.sc=sc; sim.t=0; sim.loop=!reduce; sim.hold=0; sim.playing=false;
+  drawSim();
+  if(!reduce) playSim();
+}
+function stopSim(){ sim.playing=false; cancelAnimationFrame(sim.raf); }
+
+/* ---------- render ---------- */
+var lastKey=null;
+function render(sig){
+  stopSim();
+  var r=route();
+  if(r.home){
+    document.title='Dinamika Dominansi · LKM Keanekaragaman Hayati';
+    topnav.innerHTML=''; view.innerHTML=home();
+  }else{
+    var sc=SCENARIOS[r.k-1];
+    document.title='Kasus '+r.k+' · Dinamika Dominansi';
+    topnav.innerHTML=navHTML(r.k,r.p);
+    if(r.p===2){ view.innerHTML=page2(sc); paint2(sc); }
+    else if(r.p===3){ view.innerHTML=page3(sc); }
+    else { S(r.k).finished=true; view.innerHTML=page4(sc); startSim(sc); }
+  }
+  var key=r.home?'home':r.k+'-'+r.p;
+  if(key!==lastKey){ window.scrollTo(0,0); lastKey=key; }
+  if(sig){
+    var el=view.querySelector('[data-sig="'+sig+'"]');
+    if(el&&!el.disabled) el.focus({preventScroll:true});
+  }
+}
+window.addEventListener('hashchange',function(){ render(); });
+
+/* ---------- interaksi ---------- */
+view.addEventListener('click',function(e){
+  var b=e.target.closest&&e.target.closest('[data-act]'); if(!b) return;
+  var a=b.dataset.act;
+  if(a==='simtoggle'){ if(sim.playing) pauseSim(); else playSim(); return; }
+  var r=route(); if(r.home) return;
+  var sc=SCENARIOS[r.k-1], st=S(sc.id);
+  if(a==='check2') check2(sc);
+  else if(a==='check3') check3(sc);
+  else if(a==='retry3'){
+    var keys=sc.plants.map(function(p){ return p.key; });
+    st.order={p:shuffleDiff(keys),r:shuffleDiff(keys)}; st.hearts=5; st.m3={}; st.msg3='';
+  }
+  render(b.dataset.sig);
+});
+
+view.addEventListener('input',function(e){
+  var el=e.target;
+  if(el.id==='simrange'){ var v=el.value/100; pauseSim(); sim.t=v; drawSim(); return; }
+  if(!el.matches||!el.matches('input[data-c]')) return;
+  var r=route(), sc=SCENARIOS[r.k-1], st=S(sc.id), c=+el.dataset.c, j=+el.dataset.j;
+  st.pred[c][j]=el.value; delete st.mark[c+'-'+j]; st.colOk[c]=false;
+  el.classList.remove('ok','bad'); el.removeAttribute('aria-invalid');
+  var cv=document.getElementById('box'+(c+1));
+  if(cv){ drawBox(cv,sc,[0,0,0]); cv.setAttribute('aria-label',boxLabel(sc,sc.times[c+1],[0,0,0])); }
+});
+
+/* geser kartu (pointer: mouse, sentuh, pena) */
+var drag=null;
+view.addEventListener('pointerdown',function(e){
+  var g=e.target.closest&&e.target.closest('.grip'); if(!g||g.disabled) return;
+  if(e.pointerType==='mouse'&&e.button!==0) return;
+  e.preventDefault();
+  var cell=g.closest('.mcell'), card=cell.querySelector('.dcard'), rc=card.getBoundingClientRect();
+  var ghost=card.cloneNode(true); ghost.classList.add('ghost');
+  ghost.style.left=rc.left+'px'; ghost.style.top=rc.top+'px'; ghost.style.width=rc.width+'px';
+  document.body.appendChild(ghost); card.classList.add('lifted');
+  drag={col:cell.dataset.col,from:+cell.dataset.i,to:+cell.dataset.i,ghost:ghost,card:card,dx:e.clientX-rc.left,dy:e.clientY-rc.top,id:e.pointerId};
+  try{ g.setPointerCapture(e.pointerId); }catch(err){}
+});
+window.addEventListener('pointermove',function(e){
+  if(!drag||e.pointerId!==drag.id) return;
+  drag.ghost.style.left=(e.clientX-drag.dx)+'px'; drag.ghost.style.top=(e.clientY-drag.dy)+'px';
+  var rows=[].slice.call(view.querySelectorAll('.mrow')), to=rows.length-1;
+  for(var i=0;i<rows.length;i++){ if(e.clientY<rows[i].getBoundingClientRect().bottom){ to=i; break; } }
+  if(to!==drag.to){
+    drag.to=to;
+    rows.forEach(function(row,i){
+      var c=row.querySelector('.mcell[data-col="'+drag.col+'"]');
+      if(c) c.classList.toggle('target',i===to&&i!==drag.from);
+    });
+  }
+});
+function endDrag(commit){
+  if(!drag) return;
+  var d=drag; drag=null; d.ghost.remove();
+  if(commit&&d.to!==d.from){
+    var r=route(), st=S(r.k), arr=st.order[d.col], it=arr.splice(d.from,1)[0];
+    arr.splice(d.to,0,it); st.m3={}; st.msg3='';
+    render('grip:'+d.col+':'+d.to);
+  }else{
+    d.card.classList.remove('lifted');
+    [].slice.call(view.querySelectorAll('.target')).forEach(function(el){ el.classList.remove('target'); });
+  }
+}
+window.addEventListener('pointerup',function(e){ if(drag&&e.pointerId===drag.id) endDrag(true); });
+window.addEventListener('pointercancel',function(e){ if(drag&&e.pointerId===drag.id) endDrag(false); });
+
+/* geser kartu dengan keyboard */
+view.addEventListener('keydown',function(e){
+  var g=e.target.closest&&e.target.closest('.grip'); if(!g||g.disabled) return;
+  if(e.key!=='ArrowUp'&&e.key!=='ArrowDown') return;
+  e.preventDefault();
+  var r=route(), st=S(r.k), col=g.dataset.col, i=+g.dataset.i, j=i+(e.key==='ArrowUp'?-1:1), arr=st.order[col];
+  if(j<0||j>=arr.length) return;
+  var t=arr[i]; arr[i]=arr[j]; arr[j]=t; st.m3={}; st.msg3='';
+  render('grip:'+col+':'+j);
+});
+
+render();
+})();
+</script>
+</body>
+</html>
