@@ -76,7 +76,8 @@ main{padding:10px 0 36px}
 .box{display:block;width:100%;height:auto;aspect-ratio:3/2;background:#fff;border:3px solid var(--edge);border-radius:14px}
 .lg-title{font:600 .95rem var(--display);margin:14px 0 6px;text-align:center;background:var(--leaf-soft);border-radius:10px;padding:3px 8px}
 .arow{display:flex;align-items:center;gap:10px;min-height:54px}
-.arow .rate{font-weight:800;line-height:1.25}
+.arow .rate{font-weight:800;line-height:1.25;flex:1;min-width:0}
+.arow .base{flex:none;display:grid;place-items:center;min-width:64px;height:44px;padding:0 10px;border:3px solid var(--leaf);border-radius:12px;background:var(--leaf-soft);font:800 1.2rem var(--body);color:var(--ink)}
 .arow input{width:100%;max-width:150px;margin:0 auto;height:44px;border:3px solid var(--edge);border-radius:12px;background:#fff;font:800 1.2rem var(--body);text-align:center;color:var(--ink)}
 .arow input.ok{border-color:var(--ok);background:var(--ok-soft)}
 .arow input.bad{border-color:var(--bad);background:var(--bad-soft);color:var(--bad)}
@@ -208,6 +209,7 @@ var SCENARIOS=[
   times:['1 Oktober 2026','1 Desember 2026','1 Januari 2027'],
   dates:[[2026,9,1],[2026,11,1],[2027,0,1]],
   initial:[4,1,15], key:[[16,16,30],[64,256,60]],
+  start:{p:['bayam','kacang','teki'], r:['teki','bayam','kacang']},
   plants:[
     {key:'bayam',name:'Bayam',latin:'<i>Spinacia oleracea</i>',shape:'circle',color:'#f2b705',colorName:'kuning',rate:'2× tiap 1 bulan',
      char:'Sayuran daun hijau semusim dengan kebutuhan hara mikro tinggi dan metabolisme cepat',
@@ -227,6 +229,7 @@ var SCENARIOS=[
   times:['3 Mei 2026','3 Juli 2026','3 September 2026'],
   dates:[[2026,4,3],[2026,6,3],[2026,8,3]],
   initial:[1,2,5], key:[[16,8,10],[256,32,20]],
+  start:{p:['kayuapu','hydrilla','eceng'], r:['eceng','kayuapu','hydrilla']},
   plants:[
     {key:'eceng',name:'Eceng gondok',latin:'<i>Eichhornia crassipes</i>',shape:'circle',color:'#f28a1e',colorName:'oren',rate:'2× tiap 2 minggu',
      char:'Tumbuhan air mengapung, daun rapat menutup permukaan; waktu penggandaan di alam dilaporkan sekitar 5 sampai 11 hari',
@@ -246,6 +249,7 @@ var SCENARIOS=[
   times:['1 November 2026','1 Januari 2027','1 Februari 2027'],
   dates:[[2026,10,1],[2027,0,1],[2027,1,1]],
   initial:[2,2,1], key:[[8,4,2],[32,8,4]],
+  start:{p:['kaliandra','jagung','alang'], r:['jagung','alang','kaliandra']},
   plants:[
     {key:'alang',name:'Alang-alang',latin:'<i>Imperata cylindrica</i>',shape:'star',color:'#e0488c',colorName:'pink',rate:'2× tiap 1 bulan',
      char:'Rumput menahun berimpang luas, tahan kering dan api',
@@ -282,17 +286,15 @@ function shapeSVG(pl,size){
   size=size||28;
   return '<svg class="shp" viewBox="0 0 24 24" width="'+size+'" height="'+size+'" role="img" aria-label="'+pl.name+' ('+pl.colorName+')"><path d="'+SHAPES[pl.shape]+'" fill="'+pl.color+'" stroke="rgba(0,0,0,.28)" stroke-width="1" stroke-linejoin="round"/></svg>';
 }
-function shuffle(a){ var b=a.slice(); for(var i=b.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=b[i]; b[i]=b[j]; b[j]=t; } return b; }
-function shuffleDiff(a){ var b,n=0; do{ b=shuffle(a); n++; }while(n<60 && !b.every(function(x,i){ return x!==a[i]; })); return b; }
 function mulberry32(s){ return function(){ s|=0; s=s+0x6D2B79F5|0; var t=Math.imul(s^s>>>15,1|s); t=t+Math.imul(t^t>>>7,61|t)^t; return ((t^t>>>14)>>>0)/4294967296; }; }
 
 /* ---------- state per kasus ---------- */
 var state={};
 function S(id){
   if(!state[id]){
-    var keys=SCENARIOS[id-1].plants.map(function(p){ return p.key; });
+    var sc0=SCENARIOS[id-1];
     state[id]={unlock:2,pred:[['','',''],['','','']],mark:{},colOk:[false,false],msg2:'',hearts2:5,hit2:false,done2:false,rev2:false,rev3:false,
-      order:{p:shuffleDiff(keys),r:shuffleDiff(keys)},m3:{},msg3:'',hearts:5,hit:false,solved:false,finished:false};
+      order:{p:sc0.start.p.slice(),r:sc0.start.r.slice()},m3:{},msg3:'',hearts:5,hit:false,solved:false,finished:false};
   }
   return state[id];
 }
@@ -398,8 +400,8 @@ function page2(sc){
   function col(c){
     var body;
     if(c===0){
-      body='<p class="lg-title">Laju Penggandaan</p>'+P.map(function(pl){
-        return '<div class="arow">'+shapeSVG(pl,30)+'<span class="rate">'+pl.rate+'</span></div>';
+      body='<p class="lg-title">Laju penggandaan dan jumlah awal</p>'+P.map(function(pl,j){
+        return '<div class="arow">'+shapeSVG(pl,30)+'<span class="rate">'+pl.rate+'</span><span class="base" role="img" aria-label="Jumlah awal '+pl.name+': '+sc.initial[j]+'">'+sc.initial[j]+'</span></div>';
       }).join('');
     }else{
       body='<p class="lg-title">Perkiraan jumlah</p>'+P.map(function(pl,j){
@@ -418,7 +420,7 @@ function page2(sc){
     '<div class="hbar">'+h2+'</div>'+
     '<div class="board">'+col(0)+col(1)+col(2)+'</div>'+
     '<p class="status" id="status2" role="status" aria-live="polite">'+st.msg2+'</p>'+
-    '<div class="foot"><p class="note">Berdasarkan laju penggandaan tumbuhan pada tabel, hitung dan masukkan perkiraan jumlah tumbuhan pada '+sc.times[1]+' dan '+sc.times[2]+' ke dalam kotak yang tersedia, lalu klik Periksa jawaban.</p>'+
+    '<div class="foot"><p class="note">Berdasarkan laju penggandaan dan jumlah awal tumbuhan pada tabel, hitung dan masukkan perkiraan jumlah tumbuhan pada '+sc.times[1]+' dan '+sc.times[2]+' ke dalam kotak yang tersedia, lalu klik Periksa jawaban.</p>'+
     '<div class="foot-actions"><button type="button" class="btn" data-act="check2" data-sig="check2"'+(st.done2?' disabled':'')+'>Periksa jawaban</button>'+arrow+'</div></div>'+
     '</section>';
 }
