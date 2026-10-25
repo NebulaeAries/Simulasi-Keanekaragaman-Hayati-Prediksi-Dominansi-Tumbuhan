@@ -4,9 +4,9 @@ Website statis (satu file `index.html`, tanpa backend) untuk LKM prediksi domina
 Alur per kasus:
 
 1. **Pilih kasus** (Kasus 1, 2, 3)
-2. **Pengamatan**: siswa menghitung jumlah tumbuhan, lalu klik *Periksa jawaban*. Kalau satu kolom waktu benar semua, ikon muncul di kotak putih; kalau ada yang salah, angkanya jadi merah dan ikon tidak muncul.
-3. **Pencocokan**: geser baris kolom *Tumbuhan dan Karakteristik* serta *Respons* agar cocok dengan *Laju Penggandaan*. Ada 5 nyawa; tiap pemeriksaan yang masih salah mengurangi 1 nyawa.
-4. **Simulasi**: animasi pertumbuhan populasi dari awal sampai akhir pengamatan.
+2. **Pengamatan**: siswa menghitung jumlah tumbuhan, lalu klik *Periksa jawaban*. Kalau satu kolom waktu benar semua, ikon muncul di kotak putih; kalau ada yang salah, angkanya jadi merah dan ikon tidak muncul. Ada 5 nyawa; tiap pemeriksaan yang masih salah mengurangi 1 nyawa. **Kalau nyawa habis**, jawaban yang benar otomatis diisikan (kotak kuning) dan siswa bisa lanjut ke halaman berikutnya.
+3. **Pencocokan**: geser baris kolom *Tumbuhan dan Karakteristik* serta *Respons* agar cocok dengan *Laju Penggandaan*. Sama seperti di atas: 5 nyawa, dan kalau habis kartu otomatis disusun sesuai jawaban yang benar lalu siswa bisa lanjut.
+4. **Simulasi**: pemandangan animasi yang hidup. Tumbuhan muncul satu per satu dengan efek tumbuh, bergoyang pelan, dan makin besar kalau makin dominan. Latarnya sesuai tema tiap kasus dan ikut bergerak: kebun berpagar dengan tanah kapur beralur, waduk dengan tanggul, alang-alang tepi, riak dan gelembung (Hydrilla digambar terendam di bawah permukaan), serta lereng gunung berapi dengan kawah menyala, lava, asap, dan abu. Tumbuhan ditaruh di tanah atau air, bukan di langit, dan yang di depan tampak lebih besar, penanda tumbuhan paling dominan (dengan efek kedip saat dominansi berpindah), bar persentase, grafik jumlah terhadap waktu, tombol kecepatan (0,5×, 1×, 2×), dan slider waktu. Kalau perangkat memakai mode *reduce motion*, animasi otomatis dimatikan dan siswa memutarnya manual.
 
 ## Cara upload ke GitHub dan jadi live (GitHub Pages)
 
@@ -27,7 +27,7 @@ Kartu di halaman awal memakai ilustrasi bawaan. Untuk memakai foto sendiri, taru
 - `images/kasus2.jpg`
 - `images/kasus3.jpg`
 
-Kalau file-nya ada, otomatis dipakai; kalau tidak ada, ilustrasi bawaan tetap tampil.
+Kalau file-nya ada, otomatis dipakai dan memenuhi kotak kartu (bagian pinggir yang melebihi kotak dipotong). Kalau fotonya punya tepi transparan, tepi itu otomatis dibuang saat website dibuka lewat GitHub Pages. Kalau file-nya tidak ada, ilustrasi bawaan tetap tampil.
 
 ## Ubah isi soal
 
@@ -41,3 +41,19 @@ Semua isi LKM (latar, tumbuhan, laju penggandaan, angka kunci jawaban) ada di ba
 
 - Kunci jawaban ada di dalam kode `index.html`, jadi siswa yang membuka *View source* bisa melihatnya.
 - Tambahkan `?guru` di akhir alamat (misal `.../index.html?guru`) untuk membuka semua halaman tanpa harus menyelesaikan soal, berguna untuk pratinjau guru.
+
+## Ganti nama penyusun
+
+Di halaman pilih kasus ada kotak *Penyusun* di bawah kartu kasus. Ganti isinya di `index.html`, cari komentar `KREDIT`:
+
+```js
+var CREDITS={
+  group:'Kelompok 7 AB23',
+  members:[
+    {name:'Dinda Aryanti Humaira', id:'2307291'},
+    {name:'Fadhlan Fauzil F', id:'2311024'}
+  ]
+};
+```
+
+Anggota boleh ditambah atau dikurangi, tinggal tambah atau hapus barisnya. Isi `id` dengan NIM (atau kosongkan kalau tidak mau ditampilkan).
