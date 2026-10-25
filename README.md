@@ -42,17 +42,6 @@ Semua isi LKM (latar, tumbuhan, laju penggandaan, angka kunci jawaban) ada di ba
 - Kunci jawaban ada di dalam kode `index.html`, jadi siswa yang membuka *View source* bisa melihatnya.
 - Tambahkan `?guru` di akhir alamat (misal `.../index.html?guru`) untuk membuka semua halaman tanpa harus menyelesaikan soal, berguna untuk pratinjau guru.
 
-## Ganti nama penyusun
-
-Di halaman pilih kasus ada kotak *Penyusun* di bawah kartu kasus. Ganti isinya di `index.html`, cari komentar `KREDIT`:
-
-```js
-var CREDITS={
-  group:'Kelompok 7 AB23',
-  members:[
-    {name:'Dinda Aryanti Humaira', id:'2307291'},
-    {name:'Fadhlan Fauzil F', id:'2311024'}
-  ]
 };
 ```
 
