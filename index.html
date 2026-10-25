@@ -209,7 +209,6 @@ var SCENARIOS=[
   times:['1 Oktober 2026','1 Desember 2026','1 Januari 2027'],
   dates:[[2026,9,1],[2026,11,1],[2027,0,1]],
   initial:[4,1,15], key:[[16,16,30],[64,256,60]],
-  start:{p:['bayam','kacang','teki'], r:['teki','bayam','kacang']},
   plants:[
     {key:'bayam',name:'Bayam',latin:'<i>Spinacia oleracea</i>',shape:'circle',color:'#f2b705',colorName:'kuning',rate:'2× tiap 1 bulan',
      char:'Sayuran daun hijau semusim dengan kebutuhan hara mikro tinggi dan metabolisme cepat',
@@ -229,7 +228,6 @@ var SCENARIOS=[
   times:['3 Mei 2026','3 Juli 2026','3 September 2026'],
   dates:[[2026,4,3],[2026,6,3],[2026,8,3]],
   initial:[1,2,5], key:[[16,8,10],[256,32,20]],
-  start:{p:['kayuapu','hydrilla','eceng'], r:['eceng','kayuapu','hydrilla']},
   plants:[
     {key:'eceng',name:'Eceng gondok',latin:'<i>Eichhornia crassipes</i>',shape:'circle',color:'#f28a1e',colorName:'oren',rate:'2× tiap 2 minggu',
      char:'Tumbuhan air mengapung, daun rapat menutup permukaan; waktu penggandaan di alam dilaporkan sekitar 5 sampai 11 hari',
@@ -249,7 +247,6 @@ var SCENARIOS=[
   times:['1 November 2026','1 Januari 2027','1 Februari 2027'],
   dates:[[2026,10,1],[2027,0,1],[2027,1,1]],
   initial:[2,2,1], key:[[8,4,2],[32,8,4]],
-  start:{p:['kaliandra','jagung','alang'], r:['jagung','alang','kaliandra']},
   plants:[
     {key:'alang',name:'Alang-alang',latin:'<i>Imperata cylindrica</i>',shape:'star',color:'#e0488c',colorName:'pink',rate:'2× tiap 1 bulan',
      char:'Rumput menahun berimpang luas, tahan kering dan api',
@@ -286,15 +283,25 @@ function shapeSVG(pl,size){
   size=size||28;
   return '<svg class="shp" viewBox="0 0 24 24" width="'+size+'" height="'+size+'" role="img" aria-label="'+pl.name+' ('+pl.colorName+')"><path d="'+SHAPES[pl.shape]+'" fill="'+pl.color+'" stroke="rgba(0,0,0,.28)" stroke-width="1" stroke-linejoin="round"/></svg>';
 }
+/* acak urutan kartu; tidak ada kartu yang kebetulan sudah di baris yang benar */
+function shuffleDiff(keys){
+  var b,n=0;
+  do{
+    b=keys.slice();
+    for(var i=b.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=b[i]; b[i]=b[j]; b[j]=t; }
+    n++;
+  }while(!b.every(function(x,i){ return x!==keys[i]; }) && n<500);
+  return b;
+}
 function mulberry32(s){ return function(){ s|=0; s=s+0x6D2B79F5|0; var t=Math.imul(s^s>>>15,1|s); t=t+Math.imul(t^t>>>7,61|t)^t; return ((t^t>>>14)>>>0)/4294967296; }; }
 
 /* ---------- state per kasus ---------- */
 var state={};
 function S(id){
   if(!state[id]){
-    var sc0=SCENARIOS[id-1];
+    var keys=SCENARIOS[id-1].plants.map(function(p){ return p.key; });
     state[id]={unlock:2,pred:[['','',''],['','','']],mark:{},colOk:[false,false],msg2:'',hearts2:5,hit2:false,done2:false,rev2:false,rev3:false,
-      order:{p:sc0.start.p.slice(),r:sc0.start.r.slice()},m3:{},msg3:'',hearts:5,hit:false,solved:false,finished:false};
+      order:{p:shuffleDiff(keys),r:shuffleDiff(keys)},m3:{},msg3:'',hearts:5,hit:false,solved:false,finished:false};
   }
   return state[id];
 }
