@@ -58,7 +58,9 @@ main{padding:10px 0 36px}
 .kcard{position:relative;display:flex;flex-direction:column;gap:2px;text-decoration:none;background:var(--cream);border:3px solid var(--cream-2);border-radius:22px;padding:12px 12px 14px;text-align:center;box-shadow:0 7px 0 rgba(23,70,35,.2);transition:transform .15s ease}
 .kcard:hover{transform:translateY(-4px)}
 .thumb{position:relative;display:block;aspect-ratio:300/188;border-radius:14px;overflow:hidden;margin-bottom:8px;background:#cfe9b0}
-.thumb svg,.thumb img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
+.thumb svg,.thumb img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center;display:block}
+.thumb.has-img{background:var(--cream-2)}
+.thumb.has-img svg{display:none}
 .klabel{font:600 1.45rem var(--display)}
 .ksub{font-weight:700;color:var(--muted);font-size:.92rem}
 .done{position:absolute;top:20px;right:20px;background:var(--leaf);color:#fff;font-weight:800;font-size:.8rem;border-radius:999px;padding:3px 10px}
@@ -78,6 +80,8 @@ main{padding:10px 0 36px}
 .arow input{width:100%;max-width:150px;margin:0 auto;height:44px;border:3px solid var(--edge);border-radius:12px;background:#fff;font:800 1.2rem var(--body);text-align:center;color:var(--ink)}
 .arow input.ok{border-color:var(--ok);background:var(--ok-soft)}
 .arow input.bad{border-color:var(--bad);background:var(--bad-soft);color:var(--bad)}
+.arow input.rev{border-color:#c98a00;background:#fff3cd}
+.arow input[readonly]{cursor:default}
 .arow .mini{display:none}
 .foot{display:flex;flex-wrap:wrap;align-items:center;gap:14px 20px;margin-top:20px}
 .foot .note{flex:1 1 320px;margin:0;font-size:.95rem;font-weight:600}
@@ -103,11 +107,12 @@ main{padding:10px 0 36px}
 .dcard{display:flex;gap:6px;align-items:flex-start;height:100%;background:#fff;border:3px solid var(--edge);border-radius:14px;padding:8px 10px 8px 4px;position:relative}
 .dcard.ok{border-color:var(--ok);background:var(--ok-soft)}
 .dcard.bad{border-color:var(--bad);background:var(--bad-soft)}
+.dcard.rev{border-color:#c98a00;background:#fff3cd}
 .dcard .body{flex:1;min-width:0;padding-right:18px}
 .dcard .cd{display:block;font-size:.88rem;line-height:1.4;margin-top:2px}
 .dcard .latin{font-size:.85rem}
 .dcard .mkt{position:absolute;top:6px;right:9px;font-weight:800}
-.dcard.ok .mkt{color:var(--ok)} .dcard.bad .mkt{color:var(--bad)}
+.dcard.ok .mkt{color:var(--ok)} .dcard.bad .mkt{color:var(--bad)} .dcard.rev .mkt{color:#8a5d00}
 .grip{flex:none;width:30px;align-self:stretch;min-height:40px;background:none;border:0;border-radius:8px;cursor:grab;touch-action:none;color:var(--muted);display:grid;place-items:center;padding:0}
 .grip:hover:not(:disabled){background:var(--cream-2)}
 .grip:disabled{cursor:default;opacity:.35}
@@ -117,6 +122,10 @@ main{padding:10px 0 36px}
 .mcell.target .dcard{outline:3px dashed var(--leaf);outline-offset:3px}
 .hearts{display:flex;flex-direction:column;align-items:center;gap:6px;background:#fff;border:3px solid var(--edge);border-radius:18px;padding:10px 10px 12px}
 .hearts .hl{font:600 .85rem var(--display);color:var(--muted)}
+.hearts.row{flex-direction:row;gap:4px;padding:5px 14px 5px 12px}
+.hearts.row .hl{margin-left:6px}
+.hearts.row .heart{width:28px;height:28px}
+.hbar{display:flex;justify-content:flex-end;margin:-4px 0 12px}
 .heart{width:36px;height:36px;display:block}
 .heart.on{fill:#e53935}
 .heart.off{fill:#fff;stroke:#b5b5b5;stroke-width:1.6}
@@ -193,47 +202,49 @@ if(typeof Path2D!=='undefined'){ Object.keys(SHAPES).forEach(function(k){ PATHS[
 /* ---------- DATA: ubah isi LKM di sini ---------- */
 var SCENARIOS=[
 {
-  id:1, name:'Kebun di Tanah Berkapur', factor:'Zat Besi (Fe)', place:'kebun', span:'bulan Januari hingga Mei 2026',
+  id:1, name:'Kebun di Tanah Berkapur', factor:'Zat Besi (Fe)', place:'kebun', span:'Oktober 2026 hingga Januari 2027',
   respLabel:'Respons terhadap Fe',
   latar:'Sebuah kebun berada di atas tanah berkapur ber-pH tinggi. Pada pH tinggi, Fe yang sebenarnya ada di tanah menjadi <strong>sulit diserap</strong> akar. Padahal Fe dibutuhkan untuk pembentukan klorofil. Kekurangan Fe menyebabkan <strong>klorosis</strong>, yaitu daun muda menguning karena klorofil kurang terbentuk, sehingga fotosintesis dan pertumbuhan menurun. Terdapat beberapa tumbuhan yang diberi kode sebagai berikut.',
-  times:['1 Januari 2026','1 Maret 2026','1 Mei 2026'],
-  dates:[[2026,0,1],[2026,2,1],[2026,4,1]],
+  times:['1 Oktober 2026','1 Desember 2026','1 Januari 2027'],
+  dates:[[2026,9,1],[2026,11,1],[2027,0,1]],
   initial:[4,1,15], key:[[16,16,30],[64,256,60]],
   plants:[
     {key:'bayam',name:'Bayam',latin:'<i>Spinacia oleracea</i>',shape:'circle',color:'#f2b705',colorName:'kuning',rate:'2× tiap 1 bulan',
-     char:'Sayuran daun hijau semusim dengan kandungan Fe tinggi',
-     resp:'Kekurangan Fe pada tanah berkapur menurunkan hasil dan kualitas; daun muda menguning karena klorofil kurang terbentuk'},
+     char:'Sayuran daun hijau semusim dengan kebutuhan hara mikro tinggi dan metabolisme cepat',
+     resp:'Sensitif terhadap kekurangan Fe terutama pada tanah berkapur/pH tinggi yang membatasi ketersediaan Fe. Defisiensi menyebabkan daun muda menguning karena hambatan pembentukan klorofil'},
     {key:'teki',name:'Rumput teki',latin:'<i>Cyperus rotundus</i>',shape:'triangle',color:'#d64533',colorName:'merah',rate:'2× tiap 2 minggu',
-     char:'Gulma menahun setinggi sekitar 7 sampai 40 cm, berkembang biak lewat rimpang dan umbi, dijuluki gulma terburuk di daerah hangat',
-     resp:'Regenerasi cepat lewat umbi; tidak ada sumber yang menyebut efisiensi serapan Fe-nya'},
+     char:'Gulma menahun setinggi sekitar 7 sampai 40 cm, berkembang biak cepat melalui rimpang dan umbi',
+     resp:'Berfungsi sebagai agen phytoremediator dan phytostabilizer yang mampu mengakumulasi serta menoleransi berbagai logam berat termasuk Fe di jaringan akar dan rimpangnya; gulma ini tahan terhadap cekaman tanah.'},
     {key:'kacang',name:'Kacang hijau',latin:'<i>Vigna radiata</i>',shape:'square',color:'#2e9e5b',colorName:'hijau',rate:'2× tiap 2 bulan',
-     char:'Tanaman legum semusim',
-     resp:'Daun muda dapat menguning bila Fe tidak tersedia, sesuai prinsip klorosis Fe pada tanah berkapur'}
+     char:'Tanaman legum semusim yang efisien dalam fiksasi nitrogen tetapi peka terhadap defisiensi hara mikro pada fase awal',
+     resp:'Kekurangan ketersediaan Fe di tanah memicu gejala klorosis interveinal pada daun muda yang mengganggu fotosintesis.'}
   ]
 },
 {
-  id:2, name:'Waduk Tercemar Limbah Pertanian', factor:'Nitrogen (N)', place:'waduk', span:'bulan ke-0 hingga bulan ke-4',
+  id:2, name:'Waduk Tercemar Limbah Pertanian', factor:'Nitrogen (N)', place:'waduk', span:'Mei hingga September 2026',
   respLabel:'Respons terhadap N',
   latar:'Air sebuah waduk menerima limpasan pupuk dan limbah pertanian yang kaya <strong>nitrogen</strong> (nitrat dan amonium). Nitrogen dibutuhkan untuk pembentukan protein dan klorofil sehingga memacu pertumbuhan daun. Kelebihan N dan P di perairan dapat memicu pertumbuhan tumbuhan air secara tidak terkendali.',
-  times:['Bulan 0','Bulan 2','Bulan 4'],
+  times:['3 Mei 2026','3 Juli 2026','3 September 2026'],
+  dates:[[2026,4,3],[2026,6,3],[2026,8,3]],
   initial:[1,2,5], key:[[16,8,10],[256,32,20]],
   plants:[
-    {key:'eceng',name:'Eceng gondok',latin:'<i>Eichhornia crassipes</i>',shape:'circle',color:'#f28a1e',colorName:'oren',rate:'2× tiap 1 minggu (kondisi optimal)',
+    {key:'eceng',name:'Eceng gondok',latin:'<i>Eichhornia crassipes</i>',shape:'circle',color:'#f28a1e',colorName:'oren',rate:'2× tiap 2 minggu',
      char:'Tumbuhan air mengapung, daun rapat menutup permukaan; waktu penggandaan di alam dilaporkan sekitar 5 sampai 11 hari',
-     resp:'N dan P adalah faktor pembatas pertumbuhan terpenting; pertumbuhannya mengikuti pola logistik'},
+     resp:'Peningkatan Nitrogen (nitrat NO₃⁻ dan amonium NH₄⁺) di perairan langsung memacu laju pertumbuhan relatif (RGR) dan pembentukan stolon baru secara logistik/eksponensial.'},
     {key:'kayuapu',name:'Kayu apu',latin:'<i>Pistia stratiotes</i>',shape:'diamond',color:'#2f6fcf',colorName:'biru',rate:'2× tiap 1 bulan',
      char:'Tumbuhan air mengapung berbentuk roset, dimanfaatkan sebagai tempat perlindungan burayak/ikan kecil. Di sisi lain, jika populasinya padat akan mengurangi kadar oksigen terlarut dan cahaya matahari di dalam air.',
-     resp:'Pertumbuhannya dibatasi oleh kadar N dan P di air'},
-    {key:'hydrilla',name:'Hydrilla',latin:'<i>Hydrilla verticillata</i>',shape:'plus',color:'#7e4fd0',colorName:'ungu',rate:'2× tiap 2 bulan (asumsi)',
+     resp:'Sangat efisien menyerap amonium dan nitrat dari air untuk memicu penambahan luas daun serta biomassa akar. Pada konsentrasi N optimal, laju pertumbuhannya cukup pesat.'},
+    {key:'hydrilla',name:'Hydrilla',latin:'<i>Hydrilla verticillata</i>',shape:'plus',color:'#7e4fd0',colorName:'ungu',rate:'2× tiap 2 bulan',
      char:'Tumbuhan terendam berakar di dasar; tumbuh sampai sekitar 2,5 cm per hari menuju permukaan lalu bercabang dan menaungi tumbuhan lain; punya titik kompensasi cahaya terendah dan butuh irradiansi paling kecil.',
-     resp:'Mampu tumbuh pada cahaya sangat rendah; pada skenario ini cahayanya berkurang oleh tutupan tumbuhan apung (asumsi skenario)'}
+     resp:'Mampu menyerap N dari air maupun sedimen untuk pemanjangan batang. Namun, N tinggi di perairan eutrofik justru memicu stres fisiologis yang merusak klorofil dan menghambat pertumbuhannya.'}
   ]
 },
 {
-  id:3, name:'Lereng Gunung Berapi', factor:'Fosfor (P)', place:'lereng gunung berapi', span:'bulan ke-0 hingga bulan ke-4',
+  id:3, name:'Lereng Gunung Berapi', factor:'Fosfor (P)', place:'lereng gunung berapi', span:'November 2026 hingga Februari 2027',
   respLabel:'Respons terhadap P rendah',
   latar:'Sebuah lereng gunung berapi memiliki tanah muda yang <strong>kekurangan fosfor tersedia</strong>. Fosfor dibutuhkan untuk pembentukan ATP, perkembangan akar, dan pembungaan.',
-  times:['Bulan 0','Bulan 2','Bulan 4'],
+  times:['1 November 2026','1 Januari 2027','1 Februari 2027'],
+  dates:[[2026,10,1],[2027,0,1],[2027,1,1]],
   initial:[2,2,1], key:[[8,4,2],[32,8,4]],
   plants:[
     {key:'alang',name:'Alang-alang',latin:'<i>Imperata cylindrica</i>',shape:'star',color:'#e0488c',colorName:'pink',rate:'2× tiap 1 bulan',
@@ -260,6 +271,13 @@ var GRIP='<svg viewBox="0 0 10 16" aria-hidden="true" fill="currentColor"><circl
 var HEART='M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z';
 
 /* ---------- util ---------- */
+function heartsHTML(n,hit,row){
+  var h='';
+  for(var i=0;i<5;i++){
+    h+='<svg class="heart '+(i<n?'on':'off')+((hit&&i===n)?' pop':'')+'" viewBox="0 0 24 24" aria-hidden="true"><path d="'+HEART+'"/></svg>';
+  }
+  return '<div class="hearts'+(row?' row':'')+'" role="img" aria-label="Nyawa tersisa '+n+' dari 5">'+h+'<span class="hl">Nyawa</span></div>';
+}
 function shapeSVG(pl,size){
   size=size||28;
   return '<svg class="shp" viewBox="0 0 24 24" width="'+size+'" height="'+size+'" role="img" aria-label="'+pl.name+' ('+pl.colorName+')"><path d="'+SHAPES[pl.shape]+'" fill="'+pl.color+'" stroke="rgba(0,0,0,.28)" stroke-width="1" stroke-linejoin="round"/></svg>';
@@ -273,7 +291,7 @@ var state={};
 function S(id){
   if(!state[id]){
     var keys=SCENARIOS[id-1].plants.map(function(p){ return p.key; });
-    state[id]={unlock:2,pred:[['','',''],['','','']],mark:{},colOk:[false,false],msg2:'',
+    state[id]={unlock:2,pred:[['','',''],['','','']],mark:{},colOk:[false,false],msg2:'',hearts2:5,hit2:false,done2:false,rev2:false,rev3:false,
       order:{p:shuffleDiff(keys),r:shuffleDiff(keys)},m3:{},msg3:'',hearts:5,hit:false,solved:false,finished:false};
   }
   return state[id];
@@ -291,11 +309,30 @@ function route(){
   return {k:k,p:p};
 }
 
+/* foto kartu: sembunyikan ilustrasi, dan buang tepi transparan supaya foto pas memenuhi kotak */
+window.fitPhoto=function(img){
+  img.parentNode.classList.add('has-img');
+  if(img.dataset.fit) return; img.dataset.fit='1';
+  try{
+    var w=img.naturalWidth,h=img.naturalHeight; if(!w||!h) return;
+    var c=document.createElement('canvas'); c.width=w; c.height=h;
+    var x=c.getContext('2d'); x.drawImage(img,0,0);
+    var d=x.getImageData(0,0,w,h).data, x0=w,y0=h,x1=-1,y1=-1, i, px, py;
+    for(py=0;py<h;py++){ for(px=0;px<w;px++){ if(d[(py*w+px)*4+3]>16){ if(px<x0)x0=px; if(px>x1)x1=px; if(py<y0)y0=py; if(py>y1)y1=py; } } }
+    if(x1<0) return;
+    var cw=x1-x0+1, ch=y1-y0+1;
+    if(cw>=w-2&&ch>=h-2) return;
+    var o=document.createElement('canvas'); o.width=cw; o.height=ch;
+    o.getContext('2d').drawImage(c,x0,y0,cw,ch,0,0,cw,ch);
+    img.src=o.toDataURL('image/png');
+  }catch(e){ /* dibuka dari file lokal: browser menolak membaca piksel, foto tetap dipakai apa adanya */ }
+};
+
 /* ---------- beranda ---------- */
 function home(){
   var cards=SCENARIOS.map(function(sc){
     return '<a class="kcard" href="#/k'+sc.id+'/p2"><span class="thumb">'+ART[sc.id]+
-      '<img src="images/kasus'+sc.id+'.jpg" alt="" loading="lazy" onerror="this.remove()"></span>'+
+      '<img src="images/kasus'+sc.id+'.jpg" alt="" onload="fitPhoto(this)" onerror="this.remove()"></span>'+
       '<span class="klabel">Kasus '+sc.id+'</span><span class="ksub">'+sc.name+'</span>'+
       (S(sc.id).finished?'<span class="done">✓ Selesai</span>':'')+'</a>';
   }).join('');
@@ -368,19 +405,21 @@ function page2(sc){
       body='<p class="lg-title">Perkiraan jumlah</p>'+P.map(function(pl,j){
         var mk=st.mark[(c-1)+'-'+j]||'';
         return '<div class="arow"><span class="mini">'+shapeSVG(pl,24)+'</span><input type="number" inputmode="numeric" min="0" max="99999" step="1" placeholder="0"'+
-          ' data-c="'+(c-1)+'" data-j="'+j+'" value="'+st.pred[c-1][j]+'" class="'+mk+'"'+(mk==='bad'?' aria-invalid="true"':'')+
+          ' data-c="'+(c-1)+'" data-j="'+j+'" value="'+st.pred[c-1][j]+'" class="'+mk+'"'+(mk==='bad'?' aria-invalid="true"':'')+(st.done2?' readonly':'')+
           ' aria-label="Jumlah '+pl.name+' pada '+sc.times[c]+'"></div>';
       }).join('');
     }
     return '<div class="tcol"><h3 class="th">'+sc.times[c]+'</h3><canvas class="box" id="box'+c+'" width="360" height="240" role="img"></canvas>'+body+'</div>';
   }
   var arrow=maxP(sc.id)>=3?'<a class="next" href="#/k'+sc.id+'/p3" aria-label="Lanjut ke pencocokan tabel">'+ARROW+'</a>':'';
+  var h2=heartsHTML(st.hearts2,st.hit2,true); st.hit2=false;
   return '<section class="panel">'+
     '<div class="latar"><h2>Kasus '+sc.id+': '+sc.name+'</h2><p>'+sc.latar+'</p></div>'+
+    '<div class="hbar">'+h2+'</div>'+
     '<div class="board">'+col(0)+col(1)+col(2)+'</div>'+
     '<p class="status" id="status2" role="status" aria-live="polite">'+st.msg2+'</p>'+
     '<div class="foot"><p class="note">Berdasarkan laju penggandaan tumbuhan pada tabel, hitung dan masukkan perkiraan jumlah tumbuhan pada '+sc.times[1]+' dan '+sc.times[2]+' ke dalam kotak yang tersedia, lalu klik Periksa jawaban.</p>'+
-    '<div class="foot-actions"><button type="button" class="btn" data-act="check2" data-sig="check2">Periksa jawaban</button>'+arrow+'</div></div>'+
+    '<div class="foot-actions"><button type="button" class="btn" data-act="check2" data-sig="check2"'+(st.done2?' disabled':'')+'>Periksa jawaban</button>'+arrow+'</div></div>'+
     '</section>';
 }
 function counts2(sc,st,c){ return c===0?sc.initial:(st.colOk[c-1]?sc.key[c-1]:[0,0,0]); }
@@ -395,6 +434,7 @@ function paint2(sc){
 }
 function check2(sc){
   var st=S(sc.id), res=[];
+  if(st.done2) return;
   for(var c=0;c<2;c++){
     var ok=true;
     for(var j=0;j<3;j++){
@@ -404,11 +444,18 @@ function check2(sc){
     st.colOk[c]=ok; res.push(ok);
   }
   if(res[0]&&res[1]){
-    st.unlock=Math.max(st.unlock,3);
+    st.done2=true; st.unlock=Math.max(st.unlock,3);
     st.msg2='Semua jumlah tepat! Ikon tumbuhan muncul di kotak putih. Klik tanda panah untuk lanjut.';
+    return;
+  }
+  st.hearts2=Math.max(0,st.hearts2-1); st.hit2=true;
+  if(st.hearts2===0){
+    for(var c2=0;c2<2;c2++){ for(var j2=0;j2<3;j2++){ st.pred[c2][j2]=String(sc.key[c2][j2]); st.mark[c2+'-'+j2]='rev'; } st.colOk[c2]=true; }
+    st.done2=true; st.rev2=true; st.unlock=Math.max(st.unlock,3);
+    st.msg2='Nyawa habis. Jawaban yang benar sudah diisikan (kotak kuning) dan ikonnya muncul di kotak putih. Pelajari dulu, lalu klik tanda panah untuk lanjut.';
   }else{
     var bad=[0,1].filter(function(c){ return !res[c]; }).map(function(c){ return sc.times[c+1]; });
-    st.msg2='Masih ada jawaban yang salah pada '+bad.join(' dan ')+' (angka merah). Hitung ulang: jumlah menjadi 2× lipat setiap satu kali waktu penggandaan.';
+    st.msg2='Masih ada jawaban yang salah pada '+bad.join(' dan ')+' (angka merah). Nyawa tersisa '+st.hearts2+'. Hitung ulang: jumlah menjadi 2× lipat setiap satu kali waktu penggandaan.';
   }
 }
 
@@ -416,7 +463,7 @@ function check2(sc){
 function page3(sc){
   var st=S(sc.id), P=sc.plants;
   var get=function(k){ return P.filter(function(p){ return p.key===k; })[0]; };
-  var locked=st.solved||st.hearts===0;
+  var locked=st.solved;
   function cell(colKey,i){
     var pl=get(st.order[colKey][i]), m=st.m3[colKey+i]||'';
     var lab=colKey==='p'?'Tumbuhan dan Karakteristik':sc.respLabel;
@@ -428,27 +475,20 @@ function page3(sc){
       '<button type="button" class="grip" data-sig="grip:'+colKey+':'+i+'" data-col="'+colKey+'" data-i="'+i+'"'+(locked?' disabled':'')+
       ' aria-label="Geser kartu baris '+(i+1)+', kolom '+lab+'. Tekan panah atas atau bawah untuk memindahkan.">'+GRIP+'</button>'+
       '<div class="body">'+inner+'</div>'+
-      (m==='ok'?'<span class="mkt" aria-label="tepat">✓</span>':m==='bad'?'<span class="mkt" aria-label="belum tepat">✗</span>':'')+
+      (m==='ok'||m==='rev'?'<span class="mkt" aria-label="tepat">✓</span>':m==='bad'?'<span class="mkt" aria-label="belum tepat">✗</span>':'')+
       '</div></div>';
   }
   var rows=P.map(function(pl,i){
     return '<div class="mrow"><div class="mcell fixed"><div><span class="lab-narrow">Laju Penggandaan</span><div style="display:flex;align-items:center;gap:10px">'+shapeSVG(pl,30)+'<span>'+pl.rate+'</span></div></div></div>'+cell('p',i)+cell('r',i)+'</div>';
   }).join('');
-  var hearts='';
-  for(var i=0;i<5;i++){
-    hearts+='<svg class="heart '+(i<st.hearts?'on':'off')+((st.hit&&i===st.hearts)?' pop':'')+'" viewBox="0 0 24 24" aria-hidden="true"><path d="'+HEART+'"/></svg>';
-  }
-  st.hit=false;
-  var over=(st.hearts===0&&!st.solved)
-    ? '<div class="over" role="alert"><p>Nyawa habis! Tenang, kartunya diacak ulang dan nyawamu kembali penuh.</p><button type="button" class="btn" data-act="retry3" data-sig="retry3">Coba lagi</button></div>':'';
+  var hearts=heartsHTML(st.hearts,st.hit,false); st.hit=false;
   var arrow=maxP(sc.id)>=4?'<a class="next" href="#/k'+sc.id+'/p4" aria-label="Lanjut ke simulasi">'+ARROW+'</a>':'';
   return '<section class="panel">'+
     '<h2>Pencocokan tabel</h2>'+
     '<p style="margin:8px 0 0;font-weight:700">Sesuaikan urutan baris pada kolom <b>Tumbuhan dan Karakteristik</b> serta <b>'+sc.respLabel+'</b> agar posisinya sesuai dengan pasangan <b>Laju Penggandaan</b> yang tepat!</p>'+
     '<p class="muted" style="margin:4px 0 0;font-size:.9rem">Tekan dan geser ikon titik-titik di tiap kartu ke atas atau bawah. Dengan keyboard: fokus ke ikon itu, lalu tekan panah atas/bawah. Setiap pemeriksaan yang masih salah mengurangi satu nyawa.</p>'+
     '<div class="match"><div class="mtable"><div class="mhead"><div>Laju Penggandaan</div><div>Tumbuhan dan Karakteristik</div><div>'+sc.respLabel+'</div></div>'+rows+'</div>'+
-    '<div class="hearts" role="img" aria-label="Nyawa tersisa '+st.hearts+' dari 5">'+hearts+'<span class="hl">Nyawa</span></div></div>'+
-    over+
+    hearts+'</div>'+
     '<p class="status" id="status3" role="status" aria-live="polite">'+st.msg3+'</p>'+
     '<div class="foot"><div class="foot-actions" style="margin-left:0"><button type="button" class="btn" data-act="check3" data-sig="check3"'+(locked?' disabled':'')+'>Periksa jawaban</button></div>'+
     '<div class="foot-actions">'+arrow+'</div></div>'+
@@ -456,7 +496,7 @@ function page3(sc){
 }
 function check3(sc){
   var st=S(sc.id), P=sc.plants;
-  if(st.solved||st.hearts===0) return;
+  if(st.solved) return;
   var wrong=0;
   P.forEach(function(pl,i){
     var po=st.order.p[i]===pl.key, ro=st.order.r[i]===pl.key;
@@ -466,11 +506,17 @@ function check3(sc){
   if(wrong===0){
     st.solved=true; st.unlock=Math.max(st.unlock,4);
     st.msg3='Semua pasangan sudah tepat! Klik tanda panah untuk melihat simulasinya.';
+    return;
+  }
+  st.hearts=Math.max(0,st.hearts-1); st.hit=true;
+  if(st.hearts===0){
+    var keys=P.map(function(p){ return p.key; });
+    st.order={p:keys.slice(),r:keys.slice()};
+    P.forEach(function(pl,i){ st.m3['p'+i]='rev'; st.m3['r'+i]='rev'; });
+    st.solved=true; st.rev3=true; st.unlock=Math.max(st.unlock,4);
+    st.msg3='Nyawa habis. Kartu sudah disusun sesuai jawaban yang benar (kotak kuning). Pelajari pasangannya, lalu klik tanda panah untuk lanjut.';
   }else{
-    st.hearts=Math.max(0,st.hearts-1); st.hit=true;
-    st.msg3=st.hearts>0
-      ? 'Masih ada kartu yang belum tepat (ditandai merah). Nyawa tersisa '+st.hearts+'. Geser kartunya lalu periksa lagi.'
-      : 'Nyawa habis.';
+    st.msg3='Masih ada kartu yang belum tepat (ditandai merah). Nyawa tersisa '+st.hearts+'. Geser kartunya lalu periksa lagi.';
   }
 }
 
@@ -590,10 +636,6 @@ view.addEventListener('click',function(e){
   var sc=SCENARIOS[r.k-1], st=S(sc.id);
   if(a==='check2') check2(sc);
   else if(a==='check3') check3(sc);
-  else if(a==='retry3'){
-    var keys=sc.plants.map(function(p){ return p.key; });
-    st.order={p:shuffleDiff(keys),r:shuffleDiff(keys)}; st.hearts=5; st.m3={}; st.msg3='';
-  }
   render(b.dataset.sig);
 });
 
