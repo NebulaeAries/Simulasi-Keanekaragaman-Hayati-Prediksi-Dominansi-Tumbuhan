@@ -168,8 +168,6 @@ main{padding:10px 0 36px}
 .ctrl input[type=range]{flex:1 1 160px}
 .chip{font:800 .85rem var(--body);border:2px solid var(--leaf);background:#fff;color:var(--leaf-dark);border-radius:999px;padding:4px 11px;cursor:pointer}
 .chip[aria-pressed="true"]{background:var(--leaf);color:#fff}
-.chartbox{margin-top:14px;background:#fff;border:3px solid var(--edge);border-radius:14px;padding:8px}
-.chartbox canvas{display:block;width:100%;height:auto}
 
 @media (max-width:760px){
   .ctrl input[type=range]{order:3;flex-basis:100%}
@@ -644,7 +642,6 @@ function page4(sc){
     '<div class="ctrl"><button type="button" class="btn alt" id="simtoggle" data-act="simtoggle">Jeda</button>'+
     '<input type="range" id="simrange" min="0" max="400" value="0" aria-label="Posisi waktu simulasi">'+
     '<div class="speed" role="group" aria-label="Kecepatan simulasi">'+speeds+'</div></div>'+
-    '<div class="chartbox"><canvas id="chart" width="640" height="260" role="img" aria-label="Grafik jumlah tiap tumbuhan terhadap waktu"></canvas></div>'+
     '<p class="sr" id="announce" aria-live="polite"></p></div>'+
     '<p class="verdict">'+verdict(sc)+'</p>'+
     '<div class="foot"><div class="foot-actions" style="margin-left:0"><a class="btn" href="#/">Pilih kasus lain</a></div></div>'+
