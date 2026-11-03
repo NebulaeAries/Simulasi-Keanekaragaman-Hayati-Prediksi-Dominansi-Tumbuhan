@@ -81,6 +81,7 @@ main{padding:10px 0 36px}
 /* page 2 */
 .latar h2{font-size:1.25rem;margin-bottom:6px}
 .latar p{margin:0;font-size:.95rem}
+.latar p+p{margin-top:8px}
 .latar{background:#fff;border:3px solid var(--cream-2);border-radius:16px;padding:12px 16px;margin-bottom:18px}
 .board{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
 .th{text-align:center;font-size:1.15rem;margin-bottom:8px}
@@ -168,6 +169,8 @@ main{padding:10px 0 36px}
 .ctrl input[type=range]{flex:1 1 160px}
 .chip{font:800 .85rem var(--body);border:2px solid var(--leaf);background:#fff;color:var(--leaf-dark);border-radius:999px;padding:4px 11px;cursor:pointer}
 .chip[aria-pressed="true"]{background:var(--leaf);color:#fff}
+.chartbox{margin-top:14px;background:#fff;border:3px solid var(--edge);border-radius:14px;padding:8px}
+.chartbox canvas{display:block;width:100%;height:auto}
 
 @media (max-width:760px){
   .ctrl input[type=range]{order:3;flex-basis:100%}
@@ -239,60 +242,60 @@ var CREDITS={
 /* ---------- DATA: ubah isi LKM di sini ---------- */
 var SCENARIOS=[
 {
-  id:1, name:'Kebun di Tanah Berkapur', factor:'Zat Besi (Fe)', place:'kebun', span:'Oktober 2026 hingga Januari 2027',
+  id:1, name:'Kebun di Tanah Berkapur', factor:'Zat Besi (Fe)', place:'kebun', span:'Oktober 2026 hingga Februari 2027',
   respLabel:'Respons terhadap Fe',
-  latar:'Sebuah kebun berada di atas tanah berkapur ber-pH tinggi. Pada pH tinggi, Fe yang sebenarnya ada di tanah menjadi <strong>sulit diserap</strong> akar. Padahal Fe dibutuhkan untuk pembentukan klorofil. Kekurangan Fe menyebabkan <strong>klorosis</strong>, yaitu daun muda menguning karena klorofil kurang terbentuk, sehingga fotosintesis dan pertumbuhan menurun. Terdapat beberapa tumbuhan yang diberi kode sebagai berikut.',
-  times:['1 Oktober 2026','1 Desember 2026','1 Januari 2027'],
-  dates:[[2026,9,1],[2026,11,1],[2027,0,1]],
+  latar:'Sebuah kebun berada di atas tanah berkapur dengan tingkat keasaman (pH) yang tinggi. Kondisi pH yang tinggi ini menyebabkan unsur Zat Besi (Fe) yang ada di dalam tanah menjadi <strong>sulit diserap</strong> oleh akar tanaman. Padahal, zat besi sangat dibutuhkan oleh tumbuhan untuk pembentukan klorofil (zat hijau daun). Kekurangan zat besi dapat menyebabkan <strong>klorosis</strong>, yaitu kondisi ketika daun muda menguning karena klorofil kurang terbentuk, sehingga proses fotosintesis dan pertumbuhan tanaman pun menurun.</p><p>Berdasarkan hasil pengukuran di lapangan, kadar zat besi yang benar-benar bisa diserap oleh tanaman di kebun ini adalah <strong>10 g/m²</strong>. Terdapat beberapa tumbuhan di kebun tersebut yang diamati dengan karakteristik sebagai berikut.',
+  times:['1 Oktober 2026','1 Desember 2026','1 Februari 2027'],
+  dates:[[2026,9,1],[2026,11,1],[2027,1,1]],
   initial:[4,1,15], key:[[16,16,30],[64,256,60]],
   plants:[
     {key:'bayam',name:'Bayam',latin:'<i>Spinacia oleracea</i>',shape:'circle',color:'#f2b705',colorName:'kuning',rate:'2× tiap 1 bulan',
-     char:'Sayuran daun hijau semusim dengan kebutuhan hara mikro tinggi dan metabolisme cepat',
-     resp:'Sensitif terhadap kekurangan Fe terutama pada tanah berkapur/pH tinggi yang membatasi ketersediaan Fe. Defisiensi menyebabkan daun muda menguning karena hambatan pembentukan klorofil'},
+     char:'Sayuran daun hijau yang tumbuhnya sedang. Jumlahnya jadi dua kali lipat dalam 1 bulan. Bayam butuh cukup banyak zat hara, jadi mudah menguning kalau kekurangan.',
+     resp:'Sensitif terhadap kekurangan Fe terutama pada tanah berkapur/pH tinggi yang membatasi ketersediaan Fe. Kebutuhan Fe sebesar 15 g/m².'},
     {key:'teki',name:'Rumput teki',latin:'<i>Cyperus rotundus</i>',shape:'triangle',color:'#d64533',colorName:'merah',rate:'2× tiap 2 minggu',
-     char:'Gulma menahun setinggi sekitar 7 sampai 40 cm, berkembang biak cepat melalui rimpang dan umbi',
-     resp:'Berfungsi sebagai agen phytoremediator dan phytostabilizer yang mampu mengakumulasi serta menoleransi berbagai logam berat termasuk Fe di jaringan akar dan rimpangnya; gulma ini tahan terhadap cekaman tanah.'},
+     char:'Gulma atau tumbuhan pengganggu setinggi sekitar 7 sampai 40 cm yang tumbuh paling cepat di antara ketiganya. Jumlahnya jadi dua kali lipat dalam 2 minggu. Ia menyebar lewat batang di dalam tanah (rimpang) dan umbi, jadi sekali tumbuh sulit dibasmi.',
+     resp:'Mampu memanfaatkan Fe yang ada di tanah untuk tumbuh, meskipun jumlahnya terbatas. Kebutuhan Fe-nya kecil sebanyak 5 g/m².'},
     {key:'kacang',name:'Kacang hijau',latin:'<i>Vigna radiata</i>',shape:'square',color:'#2e9e5b',colorName:'hijau',rate:'2× tiap 2 bulan',
-     char:'Tanaman legum semusim yang efisien dalam fiksasi nitrogen tetapi peka terhadap defisiensi hara mikro pada fase awal',
-     resp:'Kekurangan ketersediaan Fe di tanah memicu gejala klorosis interveinal pada daun muda yang mengganggu fotosintesis.'}
+     char:'Tanaman polong yang tumbuh paling lambat di antara ketiganya. Jumlahnya jadi dua kali lipat dalam 2 bulan. Akarnya punya bintil yang bisa mengambil nitrogen dari udara. Saat masih kecil, ia mudah terganggu kalau kekurangan zat hara.',
+     resp:'Butuh banyak Fe sebesar 25 g/m² untuk pembentukan klorofil dan fiksasi nitrogen.'}
   ]
 },
 {
   id:2, name:'Waduk Tercemar Limbah Pertanian', factor:'Nitrogen (N)', place:'waduk', span:'Mei hingga September 2026',
   respLabel:'Respons terhadap N',
-  latar:'Air sebuah waduk menerima limpasan pupuk dan limbah pertanian yang kaya <strong>nitrogen</strong> (nitrat dan amonium). Nitrogen dibutuhkan untuk pembentukan protein dan klorofil sehingga memacu pertumbuhan daun. Kelebihan N dan P di perairan dapat memicu pertumbuhan tumbuhan air secara tidak terkendali.',
+  latar:'Air sebuah waduk menerima aliran limpasan pupuk dan limbah pertanian yang kaya akan unsur <strong>nitrogen</strong> (dalam bentuk nitrat dan amonium). Nitrogen sangat dibutuhkan oleh tumbuhan untuk pembentukan protein dan klorofil, yang berfungsi memicu pertumbuhan daun. Namun, kelebihan unsur nitrogen (N) dan fosfor (P) di perairan dapat memicu pertumbuhan tumbuhan air secara tidak terkendali.</p><p>Berdasarkan hasil uji laboratorium, kadar nitrogen yang terkandung di dalam air waduk tersebut adalah <strong>40 mg/L</strong>. Terdapat beberapa tumbuhan di waduk tersebut yang diamati dengan karakteristik sebagai berikut.',
   times:['3 Mei 2026','3 Juli 2026','3 September 2026'],
   dates:[[2026,4,3],[2026,6,3],[2026,8,3]],
   initial:[1,2,5], key:[[16,8,10],[256,32,20]],
   plants:[
     {key:'eceng',name:'Eceng gondok',latin:'<i>Eichhornia crassipes</i>',shape:'circle',color:'#f28a1e',colorName:'oren',rate:'2× tiap 2 minggu',
-     char:'Tumbuhan air mengapung, daun rapat menutup permukaan; waktu penggandaan di alam dilaporkan sekitar 5 sampai 11 hari',
-     resp:'Peningkatan Nitrogen (nitrat NO₃⁻ dan amonium NH₄⁺) di perairan langsung memacu laju pertumbuhan relatif (RGR) dan pembentukan stolon baru secara logistik/eksponensial.'},
+     char:'Tumbuhan yang mengapung di permukaan air. Daunnya rapat dan menutupi permukaan. Di alam, jumlahnya bisa jadi dua kali lipat hanya dalam sekitar 5 sampai 11 hari.',
+     resp:'Kalau N di air bertambah (nitrat dan amonium), tanaman ini langsung tumbuh lebih cepat dan cepat membentuk tunas baru (stolon). Jumlahnya naik dengan sangat cepat. Kebutuhan N sebesar 20 mg/L.'},
     {key:'kayuapu',name:'Kayu apu',latin:'<i>Pistia stratiotes</i>',shape:'diamond',color:'#2f6fcf',colorName:'biru',rate:'2× tiap 1 bulan',
-     char:'Tumbuhan air mengapung berbentuk roset, dimanfaatkan sebagai tempat perlindungan burayak/ikan kecil. Di sisi lain, jika populasinya padat akan mengurangi kadar oksigen terlarut dan cahaya matahari di dalam air.',
-     resp:'Sangat efisien menyerap amonium dan nitrat dari air untuk memicu penambahan luas daun serta biomassa akar. Pada konsentrasi N optimal, laju pertumbuhannya cukup pesat.'},
+     char:'Tumbuhan air yang mengapung di permukaan dan bentuknya seperti bunga mawar (roset). Jumlahnya jadi dua kali lipat dalam 4 minggu. Kayu apu bisa jadi tempat berlindung anak ikan dan hewan air kecil.',
+     resp:'Pandai menyerap amonium dan nitrat dari air. N dipakai untuk memperluas daun dan menumbuhkan akar. Kalau N-nya normal atau sesuai, maka akan tumbuh cukup pesat. Kebutuhan N sebesar 30 mg/L.'},
     {key:'hydrilla',name:'Hydrilla',latin:'<i>Hydrilla verticillata</i>',shape:'plus',color:'#7e4fd0',colorName:'ungu',rate:'2× tiap 2 bulan',
-     char:'Tumbuhan terendam berakar di dasar; tumbuh sampai sekitar 2,5 cm per hari menuju permukaan lalu bercabang dan menaungi tumbuhan lain; punya titik kompensasi cahaya terendah dan butuh irradiansi paling kecil.',
-     resp:'Mampu menyerap N dari air maupun sedimen untuk pemanjangan batang. Namun, N tinggi di perairan eutrofik justru memicu stres fisiologis yang merusak klorofil dan menghambat pertumbuhannya.'}
+     char:'Tumbuhan yang hidup terendam, akarnya di dasar air. Batangnya tumbuh ke permukaan (sekitar 2,5 cm per hari), lalu bercabang dan menaungi tumbuhan lain. Ia bisa tumbuh walau cahayanya sedikit. Jumlahnya jadi 2 kali lipat dalam 8 minggu.',
+     resp:'Bisa menyerap N dari air dan dari lumpur dasar untuk memanjangkan batang. Tapi kalau N di waduk terlalu tinggi, ia stres: klorofilnya rusak dan pertumbuhannya terhambat. Kebutuhan N sebesar 5 mg/L.'}
   ]
 },
 {
   id:3, name:'Lereng Gunung Berapi', factor:'Fosfor (P)', place:'lereng gunung berapi', span:'November 2026 hingga Februari 2027',
   respLabel:'Respons terhadap P rendah',
-  latar:'Sebuah lereng gunung berapi memiliki tanah muda yang <strong>kekurangan fosfor tersedia</strong>. Fosfor dibutuhkan untuk pembentukan ATP, perkembangan akar, dan pembungaan.',
+  latar:'Lereng sebuah gunung berapi memiliki jenis tanah muda yang secara alami kekurangan unsur <strong>fosfor (P)</strong> yang dapat diserap oleh tumbuhan. Padahal, tumbuhan memerlukan unsur fosfor untuk membuat ATP (sumber energi sel), menumbuhkan sistem akar yang kuat, serta merangsang pembungaan.</p><p>Berdasarkan hasil analisis tanah, kadar fosfor yang tersedia dan dapat diserap di lereng tersebut adalah <strong>5 mg/kg</strong> tanah. Terdapat beberapa tumbuhan di lereng tersebut yang diamati dengan karakteristik sebagai berikut.',
   times:['1 November 2026','1 Januari 2027','1 Februari 2027'],
   dates:[[2026,10,1],[2027,0,1],[2027,1,1]],
   initial:[2,2,1], key:[[8,4,2],[32,8,4]],
   plants:[
     {key:'alang',name:'Alang-alang',latin:'<i>Imperata cylindrica</i>',shape:'star',color:'#e0488c',colorName:'pink',rate:'2× tiap 1 bulan',
-     char:'Rumput menahun berimpang luas, tahan kering dan api',
-     resp:'Tetap bisa tumbuh dengan baik di tanah yang miskin hara karena akar rimpangnya sangat efisien menyerap nutrisi'},
+     char:'Rumput yang hidup bertahun-tahun dan menyebar luas lewat batang di dalam tanah (rimpang). Tahan kering dan tahan api. Karena menyebar lewat rimpang, jumlahnya bisa jadi dua kali lipat dalam 1 bulan, sehingga ia tumbuh paling cepat di antara ketiganya.',
+     resp:'Tetap tumbuh baik di tanah miskin hara karena akar rimpangnya pandai menyerap zat hara. Kebutuhan P sebesar 3 mg/kg.'},
     {key:'kaliandra',name:'Kaliandra',latin:'<i>Calliandra calothyrsus</i>',shape:'diamond',color:'#1db5ac',colorName:'tosca',rate:'2× tiap 2 bulan',
-     char:'Pohon kecil atau semak berkayu yang cepat tumbuh dan mampu mengikat nitrogen bebas dari udara.',
-     resp:'Mampu bertahan hidup di tanah tandus karena bekerja sama dengan jamur akar (mikoriza) untuk menyerap fosfor'},
+     char:'Pohon kecil atau semak berkayu yang bisa mengambil nitrogen dari udara. Jumlahnya jadi dua kali lipat dalam 2 bulan. Karena berupa tumbuhan berkayu, ia tumbuh lebih lambat daripada alang-alang.',
+     resp:'Mampu bertahan hidup di tanah tandus karena bekerja sama dengan jamur akar (mikoriza) untuk menyerap fosfor. Kebutuhan P sebesar 6 mg/kg.'},
     {key:'jagung',name:'Jagung manis',latin:'<i>Zea mays</i> var. <i>saccharata</i>',shape:'cross',color:'#2f6fcf',colorName:'biru',rate:'2× tiap 2 bulan',
-     char:'Tanaman pangan semusim',
-     resp:'Apabila P (fosfor) rendah dapat menghambat pembentukan akar lateral dan pertumbuhan tanaman'}
+     char:'Tanaman pangan yang hidup satu musim tanam. Jumlahnya jadi dua kali lipat dalam 2 bulan, sama lajunya dengan kaliandra dan lebih lambat daripada alang-alang.',
+     resp:'Kalau P rendah, akar samping sulit terbentuk dan pertumbuhan terhambat, jadi sulit berlipat ganda. Kebutuhan P sebesar 15 mg/kg.'}
   ]
 }];
 
@@ -642,6 +645,7 @@ function page4(sc){
     '<div class="ctrl"><button type="button" class="btn alt" id="simtoggle" data-act="simtoggle">Jeda</button>'+
     '<input type="range" id="simrange" min="0" max="400" value="0" aria-label="Posisi waktu simulasi">'+
     '<div class="speed" role="group" aria-label="Kecepatan simulasi">'+speeds+'</div></div>'+
+    '<div class="chartbox"><canvas id="chart" width="640" height="260" role="img" aria-label="Grafik jumlah tiap tumbuhan terhadap waktu"></canvas></div>'+
     '<p class="sr" id="announce" aria-live="polite"></p></div>'+
     '<p class="verdict">'+verdict(sc)+'</p>'+
     '<div class="foot"><div class="foot-actions" style="margin-left:0"><a class="btn" href="#/">Pilih kasus lain</a></div></div>'+
